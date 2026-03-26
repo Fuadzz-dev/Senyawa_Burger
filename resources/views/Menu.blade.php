@@ -13,7 +13,7 @@
     <body>
         <!-- HERO -->
         <div class="hero">
-            <img class="picSen"src="senyawa.png" alt="senyawa">
+            <img class="picSen" src="{{ asset('senyawa.png') }}" alt="senyawa">
             </div>
         </div>
 
@@ -48,7 +48,7 @@
                             <div class="menu-card" style="animation-delay: {{ $index * 0.07 }}s">
                                 <img
                                     class="card-img"
-                                    src="{{ $item->foto }}"
+                                    src="{{ $item->foto ? 'data:image/jpeg;base64,' . base64_encode($item->foto) : asset('default.png') }}"
                                     alt="{{ $item->nama_menu }}"
                                     loading="lazy"
                                 />
@@ -57,10 +57,6 @@
                                     <div class="card-price">Rp{{ number_format($item->harga, 0, ',', '.') }}</div>
                                     <button
                                         class="btn-tambah"
-                                        data-id="{{ $item->id_menu }}"
-                                        data-name="{{ $item->nama_menu }}"
-                                        data-price="{{ $item->harga }}"
-                                        data-img="{{ $item->foto }}"
                                     >
                                         Tambah
                                     </button>
