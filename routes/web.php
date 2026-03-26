@@ -7,6 +7,6 @@ Route::get('/', [MenuController::class, 'index']);
 
 Route::get('/menu', [MenuController::class, 'index']);
 
-Route::get('/detail-menu', function () {
-    return view('Detail_Menu');
-});
+Route::get('/detail-menu/{id_menu}', [MenuController::class, 'detail']);
+
+Route::get('/keranjang', [MenuController::class, 'keranjang']);

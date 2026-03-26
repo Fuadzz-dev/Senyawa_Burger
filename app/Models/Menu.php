@@ -20,4 +20,10 @@ class Menu extends Model
         'Kategori',
         'status_tersedia',
     ];
+
+    public function bahan()
+    {
+        return $this->belongsToMany(StokBahan::class, 'menu_bahan', 'id_menu', 'id_bahan')
+                    ->withPivot('jumlah_digunakan');
+    }
 }

@@ -44,7 +44,7 @@
             >
             <button
                 class="btn-tambah"
-                onclick="showToast('Item baru ditambahkan')"
+                onclick="window.location.href='{{ url('/menu') }}'"
             >
                 <svg viewBox="0 0 24 24" fill="none">
                     <line x1="12" y1="5" x2="12" y2="19" />
@@ -118,6 +118,7 @@
             </button>
         </div>
 
+        <div style="height: 120px"></div>
         <!-- Toast -->
         <div class="toast" id="toast"></div>
     </body>
@@ -575,10 +576,11 @@
 <!--Javascript-->
 <script>
     // ── State ──
-    let orders = [
-        { name: "CHEESE BURGER", qty: 1, price: 24500, note: "" },
-        { name: "BEEF BURGER", qty: 1, price: 26000, note: "" },
-    ];
+    let rawCart = JSON.parse(localStorage.getItem("cart")) || [];
+    let orders = rawCart.map((o) => ({
+        ...o,
+        note: o.notes || o.note || "",
+    }));
 
     const OTHER_FEE = 2525;
 
@@ -594,6 +596,13 @@
         const container = document.getElementById("orderItems");
         container.innerHTML = "";
 
+        if (orders.length === 0) {
+            container.innerHTML =
+                "<p style='text-align:center; padding: 20px; color: var(--gray); font-size: 0.9rem;'>Keranjang masih kosong.</p>";
+            updateTotals();
+            return;
+        }
+
         orders.forEach((item, i) => {
             const div = document.createElement("div");
             div.className = "order-item";
@@ -603,24 +612,33 @@
             <p class="item-name">${item.name}</p>
             <p class="item-qty">${item.qty}x</p>
           </div>
-          <button class="btn-ubah" onclick="editItem(${i})">
-            <svg viewBox="0 0 24 24" fill="none">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/>
-            </svg>
-            Ubah
-          </button>
+          <div style="display: flex; gap: 12px; align-items: center;">
+            <button class="btn-ubah" onclick="window.location.href='{{ url('/detail-menu') }}/${item.id}?edit=${i}'">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/>
+              </svg>
+              Ubah
+            </button>
+            <button class="btn-ubah" style="color: #e8500a;" onclick="hapusPesanan(${i})">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#e8500a">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+              Hapus
+            </button>
+          </div>
         </div>
-        <div class="item-note">
+        <div class="item-note" style="${item.note ? "" : "display:none;"}">
           <svg viewBox="0 0 24 24" fill="none">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
             <polyline points="14 2 14 8 20 8"/>
             <line x1="16" y1="13" x2="8" y2="13"/>
             <line x1="16" y1="17" x2="8" y2="17"/>
           </svg>
-          ${item.note || "Belum menambahkan catatan"}
+          ${item.note}
         </div>
-        <p class="item-price">${fmt(item.price * item.qty)}</p>
+        <p class="item-price">${fmt(item.price)}</p>
       `;
             container.appendChild(div);
         });
@@ -629,7 +647,7 @@
     }
 
     function updateTotals() {
-        const subtotal = orders.reduce((s, o) => s + o.price * o.qty, 0);
+        const subtotal = orders.reduce((s, o) => s + o.price, 0);
         const rounding = subtotal % 1000 === 0 ? 0 : -(subtotal % 25);
         const total = subtotal + rounding + OTHER_FEE;
 
@@ -639,25 +657,21 @@
         document.getElementById("otherFeeVal").textContent = fmt(OTHER_FEE);
         document.getElementById("totalVal").textContent = fmt(total);
         document.getElementById("bottomTotal").textContent = fmt(total);
+
+        const totalQty = orders.reduce((s, o) => s + o.qty, 0);
         document.getElementById("orderCountTitle").textContent =
-            `Item yang dipesan (${orders.length})`;
+            `Item yang dipesan (${totalQty})`;
     }
 
     // ── Actions ──
-    function editItem(index) {
-        const newQty = prompt(
-            `Jumlah ${orders[index].name}:`,
-            orders[index].qty,
-        );
-        if (newQty === null) return;
-        const q = parseInt(newQty);
-        if (isNaN(q) || q < 1) {
-            showToast("Masukkan jumlah yang valid");
-            return;
+    function hapusPesanan(index) {
+        const item = orders[index];
+        {
+            orders.splice(index, 1);
+            localStorage.setItem("cart", JSON.stringify(orders));
+            renderOrders();
+            showToast(`${item.name} dihapus dari pesanan`, true);
         }
-        orders[index].qty = q;
-        renderOrders();
-        showToast(`${orders[index].name} diperbarui`);
     }
 
     function addRelated(name, price) {
@@ -686,12 +700,17 @@
     }
 
     function goBack() {
-        window.location.href = "Menu.html";
+        window.location.href = "{{ url('/menu') }}";
     }
 
-    function showToast(msg) {
+    function showToast(msg, isWarning = false) {
         const el = document.getElementById("toast");
         el.textContent = msg;
+        if (isWarning) {
+            el.style.background = "#e8500a"; // Merah/Orange peringatan
+        } else {
+            el.style.background = "var(--dark)";
+        }
         el.classList.add("show");
         setTimeout(() => el.classList.remove("show"), 2200);
     }

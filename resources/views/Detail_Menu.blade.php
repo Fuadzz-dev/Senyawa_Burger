@@ -6,7 +6,7 @@
             name="viewport"
             content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
         />
-        <title>Beef Burger – Detail Pesanan</title>
+        <title>{{ $menu->nama_menu }} – Detail Pesanan</title>
         <link
             href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap"
             rel="stylesheet"
@@ -17,8 +17,8 @@
         <!-- Hero -->
         <div class="hero">
             <img
-                src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80"
-                alt="Beef Burger"
+                src="{{ $menu->foto ? 'data:image/jpeg;base64,' . base64_encode($menu->foto) : asset('default.png') }}"
+                alt="{{ $menu->nama_menu }}"
                 id="heroImg"
             />
             <div class="hero-overlay"></div>
@@ -35,8 +35,8 @@
 
         <!-- Body -->
         <div class="body">
-            <h1 class="product-name">Beef Burger</h1>
-            <p class="product-price" id="priceDisplay">Rp22.000</p>
+            <h1 class="product-name">{{ $menu->nama_menu }}</h1>
+            <p class="product-price" id="priceDisplay">Rp{{ number_format($menu->harga, 0, ',', '.') }}</p>
 
             <div class="divider"></div>
 
@@ -44,77 +44,21 @@
             <div class="modifiers-section">
                 <p class="section-label">Sesuaikan Pesanan</p>
 
-                <p class="modifier-group-title">Kurangi/Hilangkan:</p>
-                <label class="modifier-item">
-                    <input
-                        type="checkbox"
-                        class="modifier-checkbox"
-                        data-type="remove"
-                    />
-                    <span class="custom-check"></span>
-                    <span>Tanpa Bawang Merah</span>
-                </label>
-                <label class="modifier-item">
-                    <input
-                        type="checkbox"
-                        class="modifier-checkbox"
-                        data-type="remove"
-                    />
-                    <span class="custom-check"></span>
-                    <span>Tanpa Salad Jantung Merah</span>
-                </label>
-                <label class="modifier-item">
-                    <input
-                        type="checkbox"
-                        class="modifier-checkbox"
-                        data-type="remove"
-                    />
-                    <span class="custom-check"></span>
-                    <span>Tanpa Pickle</span>
-                </label>
-                <label class="modifier-item">
-                    <input
-                        type="checkbox"
-                        class="modifier-checkbox"
-                        data-type="remove"
-                    />
-                    <span class="custom-check"></span>
-                    <span>Tanpa Saus Mayo</span>
-                </label>
-
-                <p class="modifier-group-title" style="margin-top: 16px">
-                    Tambahkan (Add-ons):
-                </p>
-                <label class="modifier-item">
-                    <input
-                        type="checkbox"
-                        class="modifier-checkbox"
-                        data-type="addon"
-                        data-price="5000"
-                    />
-                    <span class="custom-check"></span>
-                    <span>Ekstra Keju (+Rp5.000)</span>
-                </label>
-                <label class="modifier-item">
-                    <input
-                        type="checkbox"
-                        class="modifier-checkbox"
-                        data-type="addon"
-                        data-price="8000"
-                    />
-                    <span class="custom-check"></span>
-                    <span>Telur Mata Sapi (+Rp8.000)</span>
-                </label>
-                <label class="modifier-item">
-                    <input
-                        type="checkbox"
-                        class="modifier-checkbox"
-                        data-type="addon"
-                        data-price="15000"
-                    />
-                    <span class="custom-check"></span>
-                    <span>Patty Sapi Ekstra (+Rp15.000)</span>
-                </label>
+                @if($menu->bahan && $menu->bahan->count() > 0)
+                    <p class="modifier-group-title">Kurangi/Hilangkan:</p>
+                    @foreach($menu->bahan as $bahan)
+                        <label class="modifier-item">
+                            <input
+                                type="checkbox"
+                                class="modifier-checkbox"
+                                data-type="remove"
+                                value="{{ $bahan->nama_bahan }}"
+                            />
+                            <span class="custom-check"></span>
+                            <span>Tanpa {{ ucwords(strtolower($bahan->nama_bahan)) }}</span>
+                        </label>
+                    @endforeach
+                @endif
             </div>
         </div>
 
@@ -148,7 +92,7 @@
             </div>
 
             <button class="btn-order" id="btnOrder" onclick="addToCart(event)">
-                Tambah Pesanan – <span class="btn-price" id="btnPrice">Rp22.000</span>
+                Tambah Pesanan – <span class="btn-price" id="btnPrice">Rp{{ number_format($menu->harga, 0, ',', '.') }}</span>
             </button>
         </div>
 
@@ -568,16 +512,9 @@
 
 <!--Javascript-->
 <script>
-    // ── Read URL params from Menu page ──
-    const urlParams = new URLSearchParams(window.location.search);
-    const paramName = urlParams.get("name") || "Beef Burger";
-    const paramPrice = parseInt(urlParams.get("price")) || 22000;
-    const paramImg = urlParams.get("img") || "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80";
+    const paramName = @json($menu->nama_menu);
+    const paramPrice = @json((int) $menu->harga);
 
-    // Set page content from params
-    document.querySelector(".product-name").textContent = paramName;
-    document.getElementById("heroImg").src = paramImg;
-    document.getElementById("heroImg").alt = paramName;
     document.title = paramName + " – Detail Pesanan";
 
     const BASE_PRICE = paramPrice;
@@ -621,9 +558,20 @@
             qty === 1 ? "0.4" : "1";
     }
 
-    // Add-on checkbox listeners
+    // checkbox listeners
+    const allRemoveCheckboxes = document.querySelectorAll('.modifier-checkbox[data-type="remove"]');
     document.querySelectorAll(".modifier-checkbox").forEach((cb) => {
-        cb.addEventListener("change", updatePrice);
+        cb.addEventListener("change", function() {
+            if (this.dataset.type === 'remove') {
+                const checkedCount = document.querySelectorAll('.modifier-checkbox[data-type="remove"]:checked').length;
+                if (checkedCount === allRemoveCheckboxes.length && allRemoveCheckboxes.length > 0) {
+                    this.checked = false;
+                    showToast("Tidak bisa menghilangkan semua bahan!");
+                    return;
+                }
+            }
+            updatePrice();
+        });
     });
 
     function addToCart(e) {
@@ -639,23 +587,92 @@
         btn.appendChild(ripple);
         setTimeout(() => ripple.remove(), 600);
 
-        showToast();
+        const unitPrice = BASE_PRICE + getAddonTotal();
+        const removedItems = [];
+        document.querySelectorAll('.modifier-checkbox[data-type="remove"]:checked').forEach((cb) => {
+            removedItems.push(cb.value);
+        });
+
+        const orderItem = {
+            id: @json($menu->id_menu),
+            name: paramName,
+            price: unitPrice * qty,
+            qty: qty,
+            notes: removedItems.length > 0 ? "Tanpa " + removedItems.join(", ") : ""
+        };
+
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const editIndex = urlParams.get('edit');
+        
+        if (editIndex !== null && cart[editIndex]) {
+            cart[editIndex] = orderItem;
+            showToast("Pesanan diperbarui!");
+        } else {
+            cart.push(orderItem);
+            showToast("Ditambahkan ke pesanan!");
+        }
+
+        let newCart = [];
+        cart.forEach(item => {
+            let existing = newCart.find(x => x.id === item.id && x.notes === item.notes);
+            if (existing) {
+                existing.qty += item.qty;
+                existing.price += item.price;
+            } else {
+                newCart.push(item);
+            }
+        });
+        localStorage.setItem('cart', JSON.stringify(newCart));
+
         setTimeout(() => {
-            window.location.href = "Menu.html";
+            window.location.href = editIndex !== null ? "{{ url('/keranjang') }}" : "{{ url('/menu') }}";
         }, 100);
     }
 
-    function showToast() {
+    let toastTimer;
+    function showToast(message) {
         const t = document.getElementById("toast");
+        if (message) {
+            t.textContent = message;
+        } else {
+            t.textContent = "Ditambahkan ke pesanan!";
+        }
         t.classList.add("show");
         setTimeout(() => t.classList.remove("show"), 2200);
     }
 
     function goBack() {
-        window.location.href = "Menu.html";
+        window.location.href = "{{ url('/menu') }}";
     }
 
     // Init
     document.getElementById("btnMinus").style.opacity = "0.4";
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const editIndex = urlParams.get('edit');
+    if (editIndex !== null) {
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        if (cart[editIndex]) {
+            const item = cart[editIndex];
+            qty = item.qty;
+            document.getElementById("qtyDisplay").textContent = qty;
+            if (qty > 1) {
+                document.getElementById("btnMinus").style.opacity = "1";
+            }
+            if (item.notes) {
+                const removedStr = item.notes.replace("Tanpa ", "");
+                const removedArr = removedStr.split(", ");
+                document.querySelectorAll('.modifier-checkbox[data-type="remove"]').forEach((cb) => {
+                    if (removedArr.includes(cb.value)) {
+                        cb.checked = true;
+                    }
+                });
+            }
+            document.getElementById("btnOrder").innerHTML = `Update Pesanan – <span class="btn-price" id="btnPrice"></span>`;
+        }
+    }
+
     updatePrice();
 </script>

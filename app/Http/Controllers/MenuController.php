@@ -23,4 +23,15 @@ class MenuController extends Controller
 
         return view('Menu', compact('kategoriList', 'menus'));
     }
+
+    public function detail($id_menu)
+    {
+        $menu = Menu::with('bahan')->findOrFail($id_menu);
+        return view('Detail_Menu', compact('menu'));
+    }
+
+    public function keranjang()
+    {
+        return view('Keranjang');
+    }
 }

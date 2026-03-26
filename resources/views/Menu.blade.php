@@ -57,6 +57,7 @@
                                     <div class="card-price">Rp{{ number_format($item->harga, 0, ',', '.') }}</div>
                                     <button
                                         class="btn-tambah"
+                                        data-id="{{ $item->id_menu }}"
                                     >
                                         Tambah
                                     </button>
@@ -69,7 +70,7 @@
         @endforeach
 
         <!-- CART BAR -->
-        <div class="cart-bar" id="cartBar">
+        <div class="cart-bar" id="cartBar" onclick="window.location.href='{{ url('/keranjang') }}'">
             <span>Lihat Pesanan</span>
             <div class="cart-badge" id="cartCount">0</div>
             <span id="cartTotal">Rp0</span>
@@ -273,14 +274,13 @@
     .menu-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 16px;
+        gap: 10px;
     }
 
     .menu-card {
         background: var(--card-bg);
         border-radius: var(--radius);
         overflow: hidden;
-        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.07);
         transition:
             transform 0.2s,
             box-shadow 0.2s;
@@ -333,14 +333,13 @@
         line-height: 1.3;
         min-height: 2.2em;
         color: var(--dark);
-        margin-bottom: 6px;
     }
 
     .card-price {
         color: var(--dark);
         font-weight: 700;
         font-size: 0.9rem;
-        margin-bottom: 10px;
+        margin-bottom: 6px;
     }
 
     .btn-tambah {
@@ -506,26 +505,28 @@
     document.body.addEventListener("click", (e) => {
         if (!e.target.matches(".btn-tambah")) return;
         const btn = e.target;
-        const name = btn.dataset.name;
-        const price = btn.dataset.price;
-        const img = btn.dataset.img;
         const id = btn.dataset.id;
-        const params = new URLSearchParams({ id, name, price, img });
-        window.location.href = "Detail_Menu.html?" + params.toString();
+        if (id) {
+            window.location.href = "{{ url('/detail-menu') }}/" + id;
+        }
     });
 
     // ── CART ──
-    let cart = [];
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
     const cartBar = document.getElementById("cartBar");
     const cartCount = document.getElementById("cartCount");
     const cartTotal = document.getElementById("cartTotal");
 
     function updateCart() {
         const total = cart.reduce((s, i) => s + i.price, 0);
-        cartCount.textContent = cart.length;
+        const totalQty = cart.reduce((s, i) => s + i.qty, 0);
+        cartCount.textContent = totalQty;
         cartTotal.textContent = fmt(total);
         cartBar.classList.toggle("show", cart.length > 0);
     }
+
+    // Inisialisasi cart saat halaman dimuat
+    updateCart();
 
     // ── TOAST ──
     const toastEl = document.getElementById("toast");
