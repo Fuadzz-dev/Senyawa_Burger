@@ -696,7 +696,7 @@
 
     function checkout() {
         const t = document.getElementById("bottomTotal").textContent;
-        showToast(`Pembayaran ${t} sedang diproses!`);
+        window.location.href = "{{ url('/pembayaran') }}?total=" + encodeURIComponent(t);
     }
 
     function goBack() {

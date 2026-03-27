@@ -34,4 +34,9 @@ class MenuController extends Controller
     {
         return view('Keranjang');
     }
+
+    public function pembayaran()
+    {
+        return view('Pembayaran');
+    }
 }

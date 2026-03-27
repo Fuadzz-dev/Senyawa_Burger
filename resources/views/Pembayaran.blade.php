@@ -6,6 +6,7 @@
             name="viewport"
             content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
         />
+        <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>Pembayaran</title>
         <link
             href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap"
@@ -139,6 +140,33 @@
             <button class="btn-pay" onclick="checkout()">
                 Lanjut Pembayaran
             </button>
+        </div>
+
+        <!-- QRIS Modal -->
+        <div class="modal-overlay" id="qrisModal" onclick="if(event.target === this) closeModal('qrisModal')">
+            <div class="modal" onclick="event.stopPropagation()">
+                <div class="modal-handle"></div>
+                <h2 class="modal-title" style="text-align: center; margin-bottom: 8px;">Scan QRIS</h2>
+                <p id="qrisStatusText" style="text-align: center; font-size: 0.9rem; color: var(--gray); margin-bottom: 20px;">
+                    Silakan scan QR Code di bawah ini untuk menyelesaikan pembayaran.
+                </p>
+                <div id="qrisImageContainer" style="display: flex; justify-content: center; align-items: center; background: #fff; padding: 16px; border-radius: 16px; border: 2px solid #eee; margin-bottom: 16px; min-height: 236px;">
+                    <img id="qrisImage" src="" alt="QRIS Code" onerror="this.onerror=null; this.src='https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=error';" style="width: 200px; height: 200px; display: block; object-fit: contain;" />
+                </div>
+                <div id="qrisSuccessAnim" style="display: none; justify-content: center; align-items: center; background: #fff; padding: 16px; border-radius: 16px; border: 2px solid var(--orange); margin-bottom: 16px; height: 236px;">
+                    <svg viewBox="0 0 24 24" fill="none" style="width: 100px; height: 100px; stroke: var(--orange); stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round;">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                </div>
+                <div style="text-align: center; margin-bottom: 24px;">
+                    <span style="font-size: 0.85rem; color: var(--gray);">Total Pembayaran</span>
+                    <div id="qrisAmount" style="font-size: 1.4rem; font-weight: 800; color: var(--dark);">Rp0</div>
+                </div>
+                <button id="btnCancelQris" class="btn-pay" style="width: 100%; background: #eee; color: var(--dark); box-shadow: none;" onclick="closeModal('qrisModal')">
+                    Batalkan
+                </button>
+            </div>
         </div>
 
         <!-- Toast -->
@@ -708,12 +736,17 @@
 
 <!--Javascript-->
 <script>
+    let paymentTimeout; // Variabel timeout simulasi qris
+
     /* ── Order Type ── */
     function openOrderTypeModal() {
         document.getElementById("orderTypeModal").classList.add("open");
     }
     function closeModal(id) {
         document.getElementById(id).classList.remove("open");
+        if(id === 'qrisModal') {
+            clearTimeout(paymentTimeout); // Batalkan simulasi jika ditutup
+        }
     }
     function setOrderType(label, el) {
         document
@@ -750,7 +783,7 @@
     }
 
     /* ── Checkout ── */
-    function checkout() {
+    async function checkout() {
         const nama = document.getElementById("inputNama").value.trim();
         const phone = document.getElementById("inputPhone").value.trim();
         if (!nama) {
@@ -761,11 +794,95 @@
             showToast("Masukkan nomor ponsel");
             return;
         }
-        showToast("Pembayaran berhasil diproses!");
+
+        if (currentMethod === "online") {
+            const totalText = document.querySelector(".total-amount").textContent;
+            const amount = totalText.replace(/[^0-9]/g, '');
+            
+            showToast("Sedang memproses QRIS...");
+            
+            try {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+                const response = await fetch('/api/pembayaran/qris', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({ amount: amount })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const qrUrl = `https://quickchart.io/qr?size=250&text=${encodeURIComponent(data.qrString)}`;
+                    
+                    document.getElementById("qrisImage").src = qrUrl;
+                    document.getElementById("qrisAmount").textContent = totalText;
+                    document.getElementById("qrisImageContainer").style.display = "flex";
+                    document.getElementById("qrisSuccessAnim").style.display = "none";
+                    document.getElementById("qrisStatusText").innerHTML = "Menunggu pembayaran via QRIS...<br><small style='color:var(--orange)'>Status akan diperbarui otomatis</small>";
+                    document.getElementById("qrisStatusText").style.color = "var(--gray)";
+                    document.getElementById("qrisStatusText").style.fontWeight = "normal";
+                    document.getElementById("qrisStatusText").style.fontSize = "0.9rem";
+                    document.getElementById("btnCancelQris").style.display = "block";
+                    
+                    document.getElementById("qrisModal").classList.add("open");
+
+                    pollPaymentStatus(data.reference);
+                } else {
+                    showToast("Gagal memproses QRIS, silakan coba lagi");
+                }
+            } catch (error) {
+                console.error(error);
+                showToast("Terjadi kesalahan sistem saat memuat QRIS.");
+            }
+        } else {
+            showToast("Pembayaran berhasil! Silakan menuju kasir.");
+            setTimeout(() => {
+                window.location.href = "{{ url('/keranjang') }}";
+            }, 2000);
+        }
+    }
+
+    function pollPaymentStatus(reference) {
+        clearTimeout(paymentTimeout);
+        paymentTimeout = setTimeout(async () => {
+            if (!document.getElementById("qrisModal").classList.contains("open")) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/pembayaran/status/${reference}`);
+                const data = await response.json();
+                
+                if (data.success && data.statusCode === "00") {
+                    document.getElementById("qrisImageContainer").style.display = "none";
+                    document.getElementById("qrisSuccessAnim").style.display = "flex";
+                    document.getElementById("btnCancelQris").style.display = "none";
+                    
+                    document.getElementById("qrisStatusText").textContent = "Pembayaran Berhasil Diverifikasi!";
+                    document.getElementById("qrisStatusText").style.color = "var(--orange)";
+                    document.getElementById("qrisStatusText").style.fontWeight = "bold";
+                    document.getElementById("qrisStatusText").style.fontSize = "1.1rem";
+                    
+                    showToast("Pembayaran QRIS berhasil diterima!");
+                    
+                    setTimeout(() => {
+                        window.location.href = "{{ url('/') }}";
+                    }, 2500);
+                } else {
+                    pollPaymentStatus(reference);
+                }
+            } catch (error) {
+                console.error("Polling error", error);
+                pollPaymentStatus(reference);
+            }
+        }, 5000);
     }
 
     function goBack() {
-        window.location.href = "Keranjang.html";
+        window.location.href = "{{ url('/keranjang') }}";
     }
 
     /* ── Toast ── */
@@ -777,4 +894,13 @@
         el.classList.add("show");
         toastTimer = setTimeout(() => el.classList.remove("show"), 2200);
     }
+
+    /* ── Init Total ── */
+    document.addEventListener("DOMContentLoaded", function() {
+        const params = new URLSearchParams(window.location.search);
+        const total = params.get("total");
+        if (total) {
+            document.querySelector(".total-amount").textContent = total;
+        }
+    });
 </script>
