@@ -84,7 +84,7 @@
                             >▼</span
                         >
                     </span>
-                    <span class="pay-value" id="otherFeeVal">Rp2.525</span>
+                    <span class="pay-value" id="otherFeeVal">Rp1</span>
                 </div>
                 <div class="payment-row" id="feeDetail" style="display: none">
                     <span
@@ -582,7 +582,7 @@
         note: o.notes || o.note || "",
     }));
 
-    const OTHER_FEE = 2525;
+    const OTHER_FEE = 1;
 
     // ── Render ──
     function fmt(n) {
@@ -696,7 +696,8 @@
 
     function checkout() {
         const t = document.getElementById("bottomTotal").textContent;
-        window.location.href = "{{ url('/pembayaran') }}?total=" + encodeURIComponent(t);
+        localStorage.setItem("checkout_total", t);
+        window.location.href = "{{ url('/pembayaran') }}";
     }
 
     function goBack() {

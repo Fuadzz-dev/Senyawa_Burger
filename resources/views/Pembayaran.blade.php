@@ -795,26 +795,52 @@
             return;
         }
 
-        if (currentMethod === "online") {
-            const totalText = document.querySelector(".total-amount").textContent;
-            const amount = totalText.replace(/[^0-9]/g, '');
+        const totalText = document.querySelector(".total-amount").textContent;
+        const amount = totalText.replace(/[^0-9]/g, '');
+        const email = document.getElementById("inputEmail").value.trim();
+        const orderType = document.getElementById("orderTypeText").textContent.trim();
+        const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+
+        if (cartItems.length === 0) {
+            showToast("Keranjang belanja kosong!");
+            return;
+        }
+
+        const payload = {
+            nama: nama,
+            phone: phone,
+            email: email,
+            orderType: orderType,
+            amount: amount,
+            paymentMethod: currentMethod,
+            cart: cartItems
+        };
+
+        showToast("Sedang memproses pesanan...");
+        
+        try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+            const response = await fetch('/api/pembayaran/checkout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify(payload)
+            });
             
-            showToast("Sedang memproses QRIS...");
+            const data = await response.json();
             
-            try {
-                const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
-                const response = await fetch('/api/pembayaran/qris', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    },
-                    body: JSON.stringify({ amount: amount })
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
+            if (data.success) {
+                // Clear cart after successful order creation
+                localStorage.removeItem('cart');
+
+                if (data.method === 'kasir') {
+                    showToast("Pesanan berhasil disimpan! Silakan menuju kasir.");
+                    setTimeout(() => {
+                        window.location.href = `/menunggu-kasir`;
+                    }, 2000);
+                } else if (data.qrString) {
                     const qrUrl = `https://quickchart.io/qr?size=250&text=${encodeURIComponent(data.qrString)}`;
                     
                     document.getElementById("qrisImage").src = qrUrl;
@@ -830,18 +856,13 @@
                     document.getElementById("qrisModal").classList.add("open");
 
                     pollPaymentStatus(data.reference);
-                } else {
-                    showToast("Gagal memproses QRIS, silakan coba lagi");
                 }
-            } catch (error) {
-                console.error(error);
-                showToast("Terjadi kesalahan sistem saat memuat QRIS.");
+            } else {
+                showToast(data.message || "Gagal memproses Checkout, silakan coba lagi");
             }
-        } else {
-            showToast("Pembayaran berhasil! Silakan menuju kasir.");
-            setTimeout(() => {
-                window.location.href = "{{ url('/keranjang') }}";
-            }, 2000);
+        } catch (error) {
+            console.error(error);
+            showToast("Terjadi kesalahan sistem saat memproses checkout.");
         }
     }
 
@@ -897,10 +918,15 @@
 
     /* ── Init Total ── */
     document.addEventListener("DOMContentLoaded", function() {
-        const params = new URLSearchParams(window.location.search);
-        const total = params.get("total");
-        if (total) {
-            document.querySelector(".total-amount").textContent = total;
+        const storedTotal = localStorage.getItem("checkout_total");
+        if (storedTotal) {
+            document.querySelector(".total-amount").textContent = storedTotal;
+        } else {
+            const params = new URLSearchParams(window.location.search);
+            const total = params.get("total");
+            if (total) {
+                document.querySelector(".total-amount").textContent = total;
+            }
         }
     });
 </script>

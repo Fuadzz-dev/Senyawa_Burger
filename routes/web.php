@@ -14,5 +14,7 @@ Route::get('/keranjang', [MenuController::class, 'keranjang']);
 Route::get('/pembayaran', [MenuController::class, 'pembayaran']);
 
 use App\Http\Controllers\PaymentController;
-Route::post('/api/pembayaran/qris', [PaymentController::class, 'createQris']);
+Route::post('/api/pembayaran/checkout', [PaymentController::class, 'processCheckout']);
 Route::get('/api/pembayaran/status/{reference}', [PaymentController::class, 'checkStatus']);
+Route::get('/menunggu-kasir', [PaymentController::class, 'menungguKasir']);
+Route::get('/api/pesanan/status/{id}', [PaymentController::class, 'checkLocalStatus']);
