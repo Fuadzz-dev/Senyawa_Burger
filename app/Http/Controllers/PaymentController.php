@@ -40,12 +40,19 @@ class PaymentController extends Controller
             return response()->json(['success' => false, 'message' => 'Data pesanan tidak lengkap'], 400);
         }
 
+        // Calculate total_pesanan (quantity)
+        $totalPesanan = 0;
+        foreach ($cart as $item) {
+            $totalPesanan += (int) $item['qty'];
+        }
+
         // Create Pesanan
         $pesanan = new Pesanan();
         $pesanan->nama = $nama;
         $pesanan->no_telepon = $phone;
         $pesanan->email = $email;
         $pesanan->total_harga = $amount;
+        $pesanan->total_pesanan = $totalPesanan;
         $pesanan->tipe_order = $tipeOrderDb;
         $pesanan->status_pembayaran = 'Belum Lunas';
         $pesanan->save();

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('pesanan', function (Blueprint $table) {
             $table->integer('id_pesanan', true);
+            $table->integer('total_pesanan');
             $table->decimal('total_harga', 12)->default(0);
             $table->string('no_telepon', 20)->nullable();
             $table->string('email', 100)->nullable();

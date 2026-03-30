@@ -14,6 +14,7 @@ class Pesanan extends Model
     public $timestamps = false; // Migration uses ->useCurrent() for created_at, no updated_at
 
     protected $fillable = [
+        'total_pesanan',
         'total_harga',
         'no_telepon',
         'email',
