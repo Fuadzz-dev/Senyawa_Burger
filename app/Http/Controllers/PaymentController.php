@@ -75,8 +75,9 @@ class PaymentController extends Controller
                 'method' => 'kasir',
                 'id_pesanan' => $pesanan->id_pesanan
             ]);
+        }
 
-            if ($method === 'online') {
+        if ($method === 'online') {
             // Generate Order ID sementara untuk Duitku
             $tempOrderId = 'TEMP-' . time();
         }
@@ -142,7 +143,6 @@ class PaymentController extends Controller
             'api_response' => $response->json()
         ], 400);
     }
-}
 
     public function checkStatus($reference)
     {
@@ -240,4 +240,5 @@ class PaymentController extends Controller
         }
     }
 }
+
 
