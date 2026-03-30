@@ -21,3 +21,4 @@ Route::get('/api/pembayaran/status/{reference}', [PaymentController::class, 'che
 Route::get('/menunggu-kasir', [PaymentController::class, 'menungguKasir']);
 Route::get('/api/pesanan/status/{id}', [PaymentController::class, 'checkLocalStatus']);
 Route::post('/api/duitku/callback', [PaymentController::class, 'callback']);
+Route::post('/api/pembayaran/simulate-success/{reference}', [PaymentController::class, 'simulateSuccess']);

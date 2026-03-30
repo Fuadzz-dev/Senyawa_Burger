@@ -239,6 +239,63 @@ class PaymentController extends Controller
             return response()->json(['success' => false, 'message' => 'Bad Signature'], 400);
         }
     }
+
+    public function simulateSuccess($reference)
+    {
+        $cacheKey = 'temp_order_' . $reference;
+        $orderData = Cache::get($cacheKey);
+ 
+        if (!$orderData) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data pesanan tidak ditemukan atau sudah kadaluarsa.'
+            ], 404);
+        }
+ 
+        // Cek apakah pesanan sudah pernah disimpan (hindari duplikasi)
+        $existing = Pesanan::where('payment_reference', $reference)->first();
+        if ($existing) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Pesanan sudah tersimpan sebelumnya.',
+                'id_pesanan' => $existing->id_pesanan
+            ]);
+        }
+ 
+        // Simpan pesanan ke database dengan status Lunas
+        $pesanan = new Pesanan();
+        $pesanan->nama = $orderData['nama'];
+        $pesanan->no_telepon = $orderData['no_telepon'];
+        $pesanan->email = $orderData['email'];
+        $pesanan->total_harga = $orderData['total_harga'];
+        $pesanan->total_pesanan = $orderData['total_pesanan'];
+        $pesanan->tipe_order = $orderData['tipe_order'];
+        $pesanan->status_pembayaran = 'Lunas';
+        $pesanan->payment_reference = $reference;
+        $pesanan->save();
+ 
+        foreach ($orderData['cart'] as $item) {
+            $detail = new DetailPesanan();
+            $detail->id_pesanan = $pesanan->id_pesanan;
+            $detail->id_menu = $item['id'];
+            $detail->jumlah = $item['qty'];
+            $detail->harga_satuan = isset($item['price'], $item['qty']) && $item['qty'] > 0
+                ? $item['price'] / $item['qty']
+                : 0;
+            $detail->kustomisasi = $item['note'] ?? null;
+            $detail->save();
+        }
+ 
+        // Hapus dari cache setelah berhasil disimpan
+        Cache::forget($cacheKey);
+ 
+        return response()->json([
+            'success' => true,
+            'message' => 'Pembayaran dikonfirmasi dan pesanan disimpan.',
+            'id_pesanan' => $pesanan->id_pesanan
+        ]);
+    }
+
 }
 
 

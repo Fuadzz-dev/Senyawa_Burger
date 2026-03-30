@@ -817,7 +817,7 @@
         };
 
         showToast("Sedang memproses pesanan...");
-        
+
         try {
             const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
             const response = await fetch('/api/pembayaran/checkout', {
@@ -828,21 +828,21 @@
                 },
                 body: JSON.stringify(payload)
             });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                // Clear cart after successful order creation
-                localStorage.removeItem('cart');
 
+            const data = await response.json();
+
+            if (data.success) {
                 if (data.method === 'kasir') {
+                    // Kasir: hapus cart sekarang karena pesanan sudah masuk DB
+                    localStorage.removeItem('cart');
                     showToast("Pesanan berhasil disimpan! Silakan menuju kasir.");
                     setTimeout(() => {
                         window.location.href = `/menunggu-kasir`;
                     }, 2000);
                 } else if (data.qrString) {
+                    // QRIS: cart JANGAN dihapus dulu, tunggu sampai pembayaran sukses
                     const qrUrl = `https://quickchart.io/qr?size=250&text=${encodeURIComponent(data.qrString)}`;
-                    
+
                     document.getElementById("qrisImage").src = qrUrl;
                     document.getElementById("qrisAmount").textContent = totalText;
                     document.getElementById("qrisImageContainer").style.display = "flex";
@@ -852,9 +852,10 @@
                     document.getElementById("qrisStatusText").style.fontWeight = "normal";
                     document.getElementById("qrisStatusText").style.fontSize = "0.9rem";
                     document.getElementById("btnCancelQris").style.display = "block";
-                    
+
                     document.getElementById("qrisModal").classList.add("open");
 
+                    // Mulai simulasi konfirmasi pembayaran
                     pollPaymentStatus(data.reference);
                 }
             } else {
@@ -864,6 +865,53 @@
             console.error(error);
             showToast("Terjadi kesalahan sistem saat memproses checkout.");
         }
+    }
+
+    async function pollPaymentStatus(reference) {
+        clearTimeout(paymentTimeout);
+
+        paymentTimeout = setTimeout(async () => {
+            if (!document.getElementById("qrisModal").classList.contains("open")) {
+                return; // Modal sudah ditutup user, batalkan
+            }
+
+            try {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+                // Panggil endpoint simulate-success → pesanan baru masuk DB di sini
+                const res = await fetch(`/api/pembayaran/simulate-success/${reference}`, {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrfToken }
+                });
+                const result = await res.json();
+
+                if (result.success) {
+                    // Pembayaran sukses → baru hapus cart dari localStorage
+                    localStorage.removeItem('cart');
+                    localStorage.removeItem('checkout_total');
+
+                    // Update UI sukses
+                    document.getElementById("qrisImageContainer").style.display = "none";
+                    document.getElementById("qrisSuccessAnim").style.display = "flex";
+                    document.getElementById("btnCancelQris").style.display = "none";
+
+                    document.getElementById("qrisStatusText").textContent = "Pembayaran Berhasil Diverifikasi!";
+                    document.getElementById("qrisStatusText").style.color = "var(--orange)";
+                    document.getElementById("qrisStatusText").style.fontWeight = "bold";
+                    document.getElementById("qrisStatusText").style.fontSize = "1.1rem";
+
+                    showToast("Pembayaran QRIS berhasil diterima!");
+
+                    setTimeout(() => {
+                        window.location.href = "{{ url('/') }}";
+                    }, 2500);
+                } else {
+                    showToast("Gagal mengkonfirmasi pembayaran.");
+                }
+            } catch (error) {
+                console.error("Simulation error", error);
+            }
+        }, 10000); // 10 detik simulasi
     }
 
     //simulasi 
@@ -902,6 +950,7 @@
             }
         }, 10000); // 10000 milidetik = 10 detik
     }
+
     // function pollPaymentStatus(reference) {
     //     clearTimeout(paymentTimeout);
     //     paymentTimeout = setTimeout(async () => {
