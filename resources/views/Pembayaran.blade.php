@@ -878,6 +878,8 @@
                 const data = await response.json();
                 
                 if (data.success && data.statusCode === "00") {
+                    localStorage.removeItem('cart');
+                    localStorage.removeItem('checkout_total');
                     document.getElementById("qrisImageContainer").style.display = "none";
                     document.getElementById("qrisSuccessAnim").style.display = "flex";
                     document.getElementById("btnCancelQris").style.display = "none";
