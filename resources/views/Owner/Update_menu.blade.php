@@ -378,18 +378,14 @@
 
     <div class="form-group">
       <label class="form-label">Harga (Rp)</label>
-      <input class="form-input" id="inputHarga" type="number" min="0" step="500" value="{{ $menu['harga'] ?? '' }}" placeholder="cth. 24500" />
-    </div>
-
-    <div class="form-group">
+      <input class="form-input" id="inputHarga" type="number" min="0" step="500" value="    <div class="form-group">
       <label class="form-label">Kategori</label>
-      <select class="form-select" id="inputKategori">
-        <option value="" disabled selected>Pilih kategori…</option>
-        <option value="Makanan">Makanan</option>
-        <option value="Minuman">Minuman</option>
-        <option value="Snack">Snack</option>
-        <option value="Dessert">Dessert</option>
-      </select>
+      <input class="form-input" id="inputKategori" list="categoryList" value="{{ $menu['kategori'] ?? '' }}" placeholder="Pilih atau ketik kategori baru..." />
+      <datalist id="categoryList">
+        @foreach($categories as $cat)
+          <option value="{{ $cat }}">{{ $cat }}</option>
+        @endforeach
+      </datalist>
     </div>
 
     <div class="form-group">
@@ -407,15 +403,19 @@
           <tbody id="resepBody"></tbody>
         </table>
         <div class="bahan-search-wrap">
-          <div class="bahan-autocomplete-wrapper" style="width:100%;">
+          <div class="bahan-autocomplete-wrapper" style="width:100%;" onclick="document.getElementById('tagInput').focus()">
             <svg class="bahan-search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" id="tagInput" placeholder="Cari dan tambah bahan ke resep..." oninput="filterBahan()" onfocus="openDropdown()" autocomplete="off" />
+            <input type="text" id="tagInput" placeholder="Cari bahan dan tekan Enter untuk menambah..." 
+               onfocus="openDropdown()" 
+               oninput="filterBahan()" 
+               onkeydown="handleBahanKeydown(event)"
+               autocomplete="off"/>
             <div class="bahan-dropdown" id="bahanDropdown"></div>
           </div>
         </div>
       </div>
     </div>
-
+    
     <div class="form-group">
       <label class="form-label">Deskripsi <span style="color:var(--text-muted);font-weight:600;">(opsional)</span></label>
       <textarea class="form-textarea" id="inputDesc" placeholder="Deskripsi singkat menu…">{{ $menu['desc'] ?? '' }}</textarea>
@@ -423,7 +423,7 @@
 
     <div class="form-actions">
       <a href="/owner/menu" class="btn btn-cancel">Batal</a>
-      <button class="btn btn-submit" onclick="submitForm()">Simpan Perubahan</button>
+      <button class="btn btn-submit" id="btnSubmit" onclick="submitForm()">Simpan Perubahan</button>
     </div>
   </div>
 </main>
@@ -433,8 +433,8 @@
   const allBahan = @json($bahanList);
   let photoFile = null;
   let resep = menuData.bahan ? menuData.bahan.map(b => ({ 
-      nama: b.nama_bahan, 
-      jumlah: b.jumlah_digunakan || 1, // Default 1 jika belum ada
+      nama: b.nama, 
+      jumlah: b.jumlah || 1, 
       satuan: b.satuan 
   })) : [];
 
@@ -481,13 +481,14 @@
   function filterBahan() {
     const query = document.getElementById('tagInput').value.trim().toLowerCase();
     const dropdown = document.getElementById('bahanDropdown');
+    
+    // Jika query kosong, tampilkan semua bahan (setelah di-filter resep yang sudah ada)
     const filtered = allBahan.filter(b => b.nama_bahan.toLowerCase().includes(query));
 
     if (filtered.length === 0) {
       dropdown.innerHTML = '<div class="bahan-dropdown-empty">Tidak ada bahan ditemukan</div>';
     } else {
       dropdown.innerHTML = filtered.map(b => {
-        // Cek apakah bahan sudah ada di resep
         const isSelected = resep.some(r => r.nama === b.nama_bahan.toUpperCase() || r.nama === b.nama_bahan);
         return `<div class="bahan-dropdown-item ${isSelected ? 'disabled' : ''}" onclick="${isSelected ? '' : `addBahanKeResep('${b.nama_bahan}', '${b.satuan || ''}')`}">
           <span>${b.nama_bahan} ${isSelected ? '✓' : ''}</span>
@@ -496,6 +497,23 @@
       }).join('');
     }
     dropdown.classList.add('open');
+  }
+
+  function handleBahanKeydown(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const query = e.target.value.trim().toLowerCase();
+      
+      // Cari bahan pertama yang cocok dari allBahan yang belum ada di resep
+      const match = allBahan.find(b => 
+        b.nama_bahan.toLowerCase().includes(query) && 
+        !resep.some(r => r.nama === b.nama_bahan)
+      );
+      
+      if (match) {
+        addBahanKeResep(match.nama_bahan, match.satuan);
+      }
+    }
   }
 
   function openDropdown() {
@@ -508,7 +526,6 @@
     }, 150);
   }
 
-  // Close dropdown when clicking outside
   document.addEventListener('click', (e) => {
     const wrapper = document.querySelector('.bahan-autocomplete-wrapper');
     if (wrapper && !wrapper.contains(e.target)) {
@@ -530,19 +547,24 @@
   }
 
   async function submitForm() {
-    const nama  = document.getElementById('inputNama').value.trim();
+    const btn = document.getElementById('btnSubmit');
+    const nama = document.getElementById('inputNama').value.trim();
     const harga = document.getElementById('inputHarga').value;
-    const desc  = document.getElementById('inputDesc').value.trim();
+    const kategori = document.getElementById('inputKategori').value.trim();
+    const desc = document.getElementById('inputDesc').value.trim();
 
     if (!nama) { alert('⚠️ Masukkan nama menu'); return; }
     if (!harga || parseInt(harga) < 0) { alert('⚠️ Masukkan harga valid'); return; }
+    if (!kategori) { alert('⚠️ Pilih atau ketik kategori menu'); return; }
+
+    btn.disabled = true;
+    btn.innerText = 'Menyimpan...';
 
     const formData = new FormData();
     formData.append('nama_menu', nama.toUpperCase());
     formData.append('harga', harga);
+    formData.append('Kategori', kategori);
     formData.append('deskripsi', desc);
-    
-    // INI YANG DIUBAH: Kirim array resep (nama & jumlah), bukan tags
     formData.append('resep', JSON.stringify(resep)); 
 
     if (photoFile) {
@@ -565,33 +587,19 @@
         window.location.href = '/owner/menu';
       } else {
         alert('' + (data.message || 'Gagal menyimpan perubahan'));
+        btn.disabled = false;
+        btn.innerText = 'Simpan Perubahan';
       }
     } catch (e) {
       alert('Terjadi kesalahan server');
       console.error(e);
+      btn.disabled = false;
+      btn.innerText = 'Simpan Perubahan';
     }
   }
 
-  async function submitForm() {
-    const nama     = document.getElementById('inputNama').value.trim();
-    const harga    = document.getElementById('inputHarga').value;
-    const kategori = document.getElementById('inputKategori').value;
-    const desc     = document.getElementById('inputDesc').value.trim();
-
-    // Validation
-    if (!nama)                         { showToast('Masukkan nama menu'); return; }
-    if (!harga || parseInt(harga) < 0) { showToast('Masukkan harga valid'); return; }
-    if (!kategori)                     { showToast('Pilih kategori menu'); return; }
-
-    // Build FormData
-    const formData = new FormData();
-    formData.append('nama_menu', nama.toUpperCase());
-    formData.append('harga', harga);
-    formData.append('Kategori', kategori);
-    formData.append('deskripsi', desc);
-    formData.append('resep', JSON.stringify(resep));
-
-    if (photoFile) {
+  renderResep();
+</script>
       formData.append('foto', photoFile);
     }
   }

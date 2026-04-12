@@ -72,27 +72,36 @@ if (!empty($resepData)) {
     }
 
     public function edit($id)
-    {
-        $menu = Menu::with('bahan')->findOrFail($id);
+{
+    $menu = Menu::with('bahan')->findOrFail($id);
 
-        $menuData = [
-            'id' => $menu->id_menu,
-            'nama' => $menu->nama_menu,
-            'harga' => intval($menu->harga),
-            'bahan' => $menu->bahan ? $menu->bahan->map(function($b) {
-    return [
-        'nama_bahan' => $b->nama_bahan,
-        'jumlah_digunakan' => $b->pivot->jumlah_digunakan, // Ambil dari tabel pivot resep
-        'satuan' => $b->satuan
+    // Ambil semua kategori unik dari tabel menu untuk dropdown
+    $categories = Menu::distinct()->pluck('Kategori')->filter()->toArray();
+
+    $menuData = [
+        'id' => $menu->id_menu,
+        'nama' => $menu->nama_menu,
+        'harga' => intval($menu->harga),
+        'bahan' => $menu->bahan ? $menu->bahan->map(function($b) {
+            return [
+                'nama' => $b->nama_bahan,
+                'jumlah' => $b->pivot->jumlah_digunakan,
+                'satuan' => $b->satuan
+            ];
+        })->toArray() : [],
+        'kategori' => $menu->Kategori,
+        'foto' => $menu->foto ? 'data:image/jpeg;base64,' . base64_encode($menu->foto) : null,
     ];
-})->toArray() : [],
-            'kategori' => $menu->Kategori,
-            'foto' => $menu->foto ? 'data:image/jpeg;base64,' . base64_encode($menu->foto) : null,
-        ];
 
-        $bahanList = StokBahan::orderBy('nama_bahan')->get(['id_bahan', 'nama_bahan', 'satuan'])->toArray();
-        return view('Owner.Update_menu', ['menu' => $menuData, 'bahanList' => $bahanList]);
-    }
+    $bahanList = StokBahan::orderBy('nama_bahan')->get(['id_bahan', 'nama_bahan', 'satuan'])->toArray();
+    
+    // Kirim variabel $categories ke view
+    return view('Owner.Update_menu', [
+        'menu' => $menuData, 
+        'bahanList' => $bahanList, 
+        'categories' => $categories
+    ]);
+}
 
     public function update(Request $request, $id)
     {
