@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Create Menu – Admin</title>
+  <title>Tambah Menu – Admin</title>
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <link
       href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap"
@@ -20,8 +20,6 @@
         --green-dark: #3d8b40;
         --red: #e85555;
         --red-dark: #c83c3c;
-        --purple: #7B61FF;
-        --purple-dark: #6348E0;
         --surface: #ffffff;
         --border: #eeeeee;
         --text-dark: #1a1008;
@@ -30,8 +28,6 @@
         --pill: 100px;
         --cream: #faefe2;
         --dark: #1a1008;
-        --card-bg: #ffffff;
-        --text: #1a1008;
         --gray: #888;
     }
 
@@ -54,7 +50,6 @@
       padding: 36px 20px 28px;
       flex-shrink: 0;
     }
-
     .avatar {
       width: 96px; height: 96px; border-radius: 50%;
       background: rgba(0,0,0,0.22);
@@ -62,18 +57,12 @@
       margin-bottom: 14px;
     }
     .avatar svg { width: 58px; height: 58px; fill: rgba(0,0,0,0.55); }
-
-    .sidebar-name {
-      font-size: 17px; font-weight: 700;
-      color: #fff; text-align: center;
-    }
+    .sidebar-name { font-size: 17px; font-weight: 700; color: #fff; text-align: center; }
     .sidebar-id {
       font-size: 13.5px; font-weight: 600;
       color: rgba(255,255,255,0.85);
-      margin-top: 4px; margin-bottom: 28px;
-      letter-spacing: 0.5px;
+      margin-top: 4px; margin-bottom: 28px; letter-spacing: 0.5px;
     }
-
     .nav-item {
       display: flex; align-items: center; gap: 10px;
       width: 100%; padding: 11px 14px;
@@ -86,43 +75,24 @@
     .nav-item:hover  { background: rgba(0,0,0,0.12); }
     .nav-item.active { background: rgba(0,0,0,0.20); }
     .nav-item svg { width: 18px; height: 18px; stroke: #fff; stroke-width: 2; fill: none; flex-shrink: 0; }
-
     .sidebar-footer { margin-top: auto; }
-
     .btn-logout {
-        background: var(--red);
-        color: #fff;
-        border: none;
-        border-radius: 20px;
-        padding: 9px 24px;
-        font-family: "Nunito", sans-serif;
-        font-size: 14px;
-        font-weight: 700;
-        cursor: pointer;
-        transition:
-            background 0.2s,
-            transform 0.15s;
+      background: var(--red); color: #fff; border: none;
+      border-radius: 20px; padding: 9px 24px;
+      font-family: "Nunito", sans-serif; font-size: 14px; font-weight: 700;
+      cursor: pointer; transition: background 0.2s, transform 0.15s;
     }
-    .btn-logout:hover {
-        background: var(--red-dark);
-        box-shadow: 0 4px 12px rgba(232, 85, 85, 0.3);
-        transform: translateY(-2px);
-    }
+    .btn-logout:hover { background: var(--red-dark); transform: translateY(-2px); }
     .btn-logout:active { transform: scale(0.96); }
 
     /* ══ MAIN ══ */
     .main { flex: 1; padding: 32px 36px 40px; overflow-y: auto; }
-
     .page-title {
-        font-family: "Bebas Neue", cursive;
-        font-size: 42px;
-        font-weight: 400;
-        color: var(--text-dark);
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        padding-bottom: 10px;
-        border-bottom: 2px solid var(--orange);
-        margin-bottom: 28px;
+      font-family: "Bebas Neue", cursive;
+      font-size: 42px; font-weight: 400;
+      color: var(--text-dark); letter-spacing: 2px; text-transform: uppercase;
+      padding-bottom: 10px; border-bottom: 2px solid var(--orange);
+      margin-bottom: 28px;
     }
 
     /* ══ FORM CARD ══ */
@@ -130,13 +100,11 @@
       background: var(--surface);
       border: 2px solid var(--border);
       border-radius: var(--radius);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.02);
       padding: 36px;
     }
-
     .form-group { margin-bottom: 24px; }
     .form-label { display: block; font-size: 13.5px; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; }
-
     .form-input, .form-textarea {
       width: 100%; border: 1.5px solid var(--border); border-radius: 8px;
       padding: 12px 14px;
@@ -150,7 +118,7 @@
     }
     .form-textarea { resize: vertical; min-height: 100px; }
 
-    /* Photo upload area */
+    /* Photo upload */
     .photo-upload {
       border: 2px dashed var(--border); border-radius: 8px;
       padding: 24px; text-align: center; cursor: pointer;
@@ -161,11 +129,44 @@
     .photo-upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
     .photo-upload-icon { font-size: 36px; margin-bottom: 12px; }
     .photo-upload-text { font-size: 14px; color: var(--text-muted); font-weight: 600; }
+    .photo-upload-sub  { font-size: 12px; color: #bbb; margin-top: 4px; }
     .photo-upload-preview {
       width: 120px; height: 120px; border-radius: 12px;
-      object-fit: cover; margin: 0 auto 12px;
-      display: block;
+      object-fit: cover; margin: 0 auto 12px; display: none;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .photo-upload-preview.show { display: block; }
+
+    /* ══ KATEGORI INPUT WITH DROPDOWN ══ */
+    .kategori-wrapper { position: relative; }
+    .kategori-wrapper .form-input { padding-right: 36px; cursor: pointer; }
+    .kategori-arrow {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      width: 16px; height: 16px;
+      stroke: var(--text-muted); stroke-width: 2; fill: none;
+      pointer-events: none; transition: transform 0.2s;
+    }
+    .kategori-dropdown {
+      display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+      background: #fff; border: 1.5px solid var(--border);
+      border-radius: 8px; max-height: 220px; overflow-y: auto;
+      z-index: 100; box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    }
+    .kategori-dropdown.open { display: block; animation: ddFade 0.15s ease; }
+    @keyframes ddFade { from{opacity:0;transform:translateY(-6px);} to{opacity:1;transform:translateY(0);} }
+    .kategori-dropdown-item {
+      padding: 11px 14px; font-size: 13.5px; font-weight: 600;
+      color: var(--text-dark); cursor: pointer;
+      transition: background 0.12s;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .kategori-dropdown-item:hover { background: var(--cream); }
+    .kategori-dropdown-item.active { color: var(--orange); }
+    .kategori-dropdown-item .check-icon { color: var(--orange); font-size: 14px; }
+    .kategori-divider { height: 1px; background: var(--border); margin: 4px 0; }
+    .kategori-new-hint {
+      padding: 10px 14px; font-size: 12px; color: var(--text-muted);
+      font-style: italic; font-weight: 500;
     }
 
     /* ══ RESEP TABLE ══ */
@@ -173,11 +174,9 @@
       background: var(--surface);
       border: 1.5px solid var(--border);
       border-radius: var(--radius);
-      overflow: hidden;
+      overflow: visible;
     }
-
     .resep-table { width: 100%; border-collapse: collapse; }
-
     .resep-table thead th {
       padding: 12px 20px;
       font-size: 11.5px; font-weight: 700;
@@ -187,10 +186,8 @@
       text-align: center; background: #FAFAF8;
     }
     .resep-table thead th:first-child { text-align: left; }
-
     .resep-table tbody tr { transition: background 0.15s; }
     .resep-table tbody tr:hover { background: #F5F2EE; }
-
     .resep-table tbody td {
       padding: 14px 20px;
       font-size: 14px; color: var(--text-dark);
@@ -198,15 +195,8 @@
       vertical-align: middle; text-align: center;
     }
     .resep-table tbody tr:last-child td { border-bottom: none; }
-    .resep-table tbody td:first-child {
-      text-align: left; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.4px;
-    }
-
-    .resep-table .td-satuan {
-      font-size: 13px; color: var(--text-muted); font-weight: 600;
-    }
-
+    .resep-table tbody td:first-child { text-align: left; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; }
+    .resep-table .td-satuan { font-size: 13px; color: var(--text-muted); font-weight: 600; }
     .resep-table .jumlah-input {
       width: 120px; padding: 6px 10px; border: 1.5px solid var(--border);
       border-radius: 8px; font-family: "Nunito", sans-serif;
@@ -218,10 +208,9 @@
       border-color: var(--orange);
       box-shadow: 0 0 0 3px rgba(232,80,10,0.2);
     }
-
     .btn-hapus {
-      display: inline-block;
-      padding: 5px 16px; border-radius: var(--pill); border: none;
+      display: inline-block; padding: 5px 16px;
+      border-radius: var(--pill); border: none;
       font-family: "Nunito", sans-serif;
       font-size: 11.5px; font-weight: 800;
       text-transform: uppercase; letter-spacing: 0.5px;
@@ -230,22 +219,27 @@
     }
     .btn-hapus:hover { filter: brightness(1.1); }
     .btn-hapus:active { transform: scale(0.95); }
-
     .resep-empty {
       text-align: center; padding: 30px 20px;
       color: var(--text-muted); font-size: 14px; font-weight: 600;
     }
 
-    /* ══ SEARCH BAHAN ══ */
+    /* ══ BAHAN SEARCH ══ */
     .bahan-search-wrap {
       display: flex; align-items: center;
       border-top: 1.5px solid var(--border);
       padding: 12px 16px; background: #FAFAF8;
-      position: relative;
+      position: relative; border-radius: 0 0 var(--radius) var(--radius);
+    }
+    .bahan-autocomplete-wrapper { width: 100%; position: relative; }
+    .bahan-search-icon {
+      position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      width: 16px; height: 16px; stroke: var(--text-muted); stroke-width: 2; fill: none;
+      pointer-events: none;
     }
     .bahan-search-wrap input {
       width: 100%; border: 1.5px solid var(--border); border-radius: 8px;
-      padding: 10px 14px; padding-left: 36px;
+      padding: 10px 14px 10px 36px;
       font-family: "Nunito", sans-serif; font-size: 13.5px;
       color: var(--text-dark); outline: none; background: #fff;
       transition: border-color 0.2s, box-shadow 0.2s;
@@ -255,21 +249,17 @@
       box-shadow: 0 0 0 3px rgba(232,80,10,0.2);
     }
     .bahan-search-wrap input::placeholder { color: #C0BCB7; }
-    .bahan-search-icon {
-      position: absolute; left: 28px; top: 50%; transform: translateY(-50%);
-      width: 16px; height: 16px; stroke: var(--text-muted); stroke-width: 2; fill: none;
-    }
 
-    /* Autocomplete dropdown */
-    .bahan-autocomplete-wrapper {}
+    /* Bahan dropdown — muncul ke atas */
     .bahan-dropdown {
-      display: none; position: absolute; top: 100%; left: 0; right: 0;
-      background: #fff; border: 1.5px solid var(--border); border-top: none;
-      border-radius: 0 0 8px 8px;
-      max-height: 200px; overflow-y: auto; z-index: 100;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      display: none; position: absolute;
+      bottom: calc(100% + 6px); left: 0; right: 0;
+      background: #fff; border: 1.5px solid var(--border);
+      border-radius: 8px;
+      max-height: 220px; overflow-y: auto; z-index: 200;
+      box-shadow: 0 -8px 24px rgba(0,0,0,0.1);
     }
-    .bahan-dropdown.open { display: block; }
+    .bahan-dropdown.open { display: block; animation: ddFade 0.15s ease; }
     .bahan-dropdown-item {
       padding: 10px 14px; font-size: 13.5px; font-weight: 600;
       color: var(--text-dark); cursor: pointer;
@@ -277,50 +267,38 @@
       transition: background 0.12s;
     }
     .bahan-dropdown-item:hover { background: var(--cream); }
-    .bahan-dropdown-item.disabled {
-      opacity: 0.4; pointer-events: none;
-    }
-    .bahan-dropdown-item .bahan-satuan {
-      font-size: 11.5px; color: var(--text-muted); font-weight: 500;
-    }
+    .bahan-dropdown-item.highlighted { background: rgba(232,80,10,0.08); }
+    .bahan-dropdown-item.disabled { opacity: 0.4; pointer-events: none; }
+    .bahan-dropdown-item .bahan-satuan { font-size: 11.5px; color: var(--text-muted); font-weight: 500; }
     .bahan-dropdown-empty {
       padding: 14px; text-align: center; font-size: 13px;
       color: var(--text-muted); font-weight: 600;
     }
+    .bahan-hint {
+      padding: 8px 14px; font-size: 11.5px; color: var(--text-muted);
+      font-style: italic; border-top: 1px solid var(--border);
+      background: #fafaf8; border-radius: 0 0 8px 8px;
+    }
 
-    .form-actions { display: flex; gap: 14px; margin-top: 32px; border-top: 1.5px solid var(--border); padding-top: 24px; }
+    /* Form actions */
+    .form-actions {
+      display: flex; gap: 14px; margin-top: 32px;
+      border-top: 1.5px solid var(--border); padding-top: 24px;
+    }
     .btn {
       flex: 1; padding: 12px; border: none; border-radius: 8px;
       font-family: "Nunito", sans-serif; font-size: 14.5px; font-weight: 800;
       text-transform: uppercase; letter-spacing: 0.5px;
-      cursor: pointer; transition: background 0.2s, transform 0.15s; text-align: center; text-decoration: none;
+      cursor: pointer; transition: background 0.2s, transform 0.15s;
+      text-align: center; text-decoration: none;
     }
     .btn:active { transform: scale(0.97); }
-    .btn-cancel { background: #EEE; color: var(--text-dark); }
+    .btn-cancel { background: #EEE; color: var(--text-dark); display: flex; align-items: center; justify-content: center; }
     .btn-cancel:hover { background: #E0DCD8; }
-    .btn-submit { background: var(--orange); color: #fff; box-shadow: 0 4px 12px rgba(232, 80, 10, 0.25); }
+    .btn-submit { background: var(--orange); color: #fff; box-shadow: 0 4px 12px rgba(232,80,10,0.25); }
     .btn-submit:hover { background: var(--orange-bg); }
 
-    /* Kategori select */
-    .form-select {
-      width: 100%; border: 1.5px solid var(--border); border-radius: 8px;
-      padding: 12px 14px;
-      font-family: "Nunito", sans-serif; font-size: 14px; color: var(--text-dark);
-      outline: none; background: #fff;
-      transition: border-color 0.2s, box-shadow 0.2s;
-      cursor: pointer;
-      appearance: none;
-      -webkit-appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 14px center;
-    }
-    .form-select:focus {
-      border-color: var(--orange);
-      box-shadow: 0 0 0 3px rgba(232,80,10,0.2);
-    }
-
-    /* ══ TOAST ══ */
+    /* Toast */
     .toast {
       position: fixed; bottom: 28px; left: 50%;
       transform: translateX(-50%) translateY(16px);
@@ -342,10 +320,8 @@
     .loading-overlay.show { display: flex; }
     .loading-spinner {
       width: 48px; height: 48px;
-      border: 4px solid #fff;
-      border-top-color: var(--orange);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+      border: 4px solid #fff; border-top-color: var(--orange);
+      border-radius: 50%; animation: spin 0.8s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
   </style>
@@ -388,43 +364,64 @@
   <h1 class="page-title">Tambah Menu Baru</h1>
 
   <div class="form-card">
+
+    {{-- ── Foto ── --}}
     <div class="form-group">
       <label class="form-label">Foto Menu</label>
       <div class="photo-upload" id="photoUploadArea">
         <input type="file" accept="image/*" id="photoInput" onchange="handlePhoto(event)" />
-        <img id="photoPreview" class="photo-upload-preview" style="display:none;" />
+        <img id="photoPreview" class="photo-upload-preview" src="" alt="Preview" />
         <div id="photoPlaceholder">
           <div class="photo-upload-icon">📷</div>
-          <div class="photo-upload-text">Klik untuk upload foto</div>
+          <div class="photo-upload-text">Klik untuk upload foto menu</div>
+          <div class="photo-upload-sub">JPG, PNG, WEBP – maks 5 MB</div>
         </div>
       </div>
     </div>
 
+    {{-- ── Nama ── --}}
     <div class="form-group">
       <label class="form-label">Nama Menu</label>
-      <input class="form-input" id="inputNama" type="text" placeholder="cth. Cheese Burger, Beef Burger…" />
+      <input class="form-input" id="inputNama" type="text"
+             placeholder="cth. Cheese Burger, Beef Burger…" />
     </div>
 
+    {{-- ── Harga ── --}}
     <div class="form-group">
       <label class="form-label">Harga (Rp)</label>
-      <input class="form-input" id="inputHarga" type="number" min="0" step="500" placeholder="cth. 24500" />
+      <input class="form-input" id="inputHarga" type="number" min="0" step="500"
+             placeholder="cth. 24500" />
     </div>
 
+    {{-- ── Kategori dengan custom dropdown ── --}}
     <div class="form-group">
-      <label class="form-label">Kategori</label>
-      <select class="form-select" id="inputKategori">
-        <option value="" disabled selected>Pilih kategori…</option>
-        <option value="Makanan">Makanan</option>
-        <option value="Minuman">Minuman</option>
-        <option value="Snack">Snack</option>
-        <option value="Dessert">Dessert</option>
-      </select>
+      <label class="form-label">
+        Kategori
+        <span style="color:var(--text-muted); font-weight:500; font-size:12px; margin-left:6px;">
+        </span>
+      </label>
+      <div class="kategori-wrapper" id="kategoriWrapper">
+        <input
+          class="form-input"
+          id="inputKategori"
+          type="text"
+          placeholder="Pilih atau ketik kategori baru..."
+          autocomplete="off"
+          oninput="onKategoriInput()"
+          onfocus="openKategoriDropdown()"
+        />
+        <svg class="kategori-arrow" id="kategoriArrow" viewBox="0 0 24 24">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+        <div class="kategori-dropdown" id="kategoriDropdown"></div>
+      </div>
     </div>
 
+    {{-- ── Bahan Resep ── --}}
     <div class="form-group">
       <label class="form-label">Bahan yang Diperlukan</label>
       <div class="resep-container">
-        <table class="resep-table" id="tabelResep">
+        <table class="resep-table">
           <thead>
             <tr>
               <th>Nama Bahan</th>
@@ -435,24 +432,30 @@
           </thead>
           <tbody id="resepBody"></tbody>
         </table>
+
         <div class="bahan-search-wrap">
-          <div class="bahan-autocomplete-wrapper" style="width:100%;">
-            <svg class="bahan-search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" id="tagInput" placeholder="Cari dan tambah bahan ke resep..." oninput="filterBahan()" onfocus="openDropdown()" autocomplete="off" />
+          <div class="bahan-autocomplete-wrapper">
+            <svg class="bahan-search-icon" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input
+              type="text"
+              id="tagInput"
+              placeholder="Cari Bahan dan Tambahkan Bahan Yang Diperlukan"
+              autocomplete="off"
+              oninput="filterBahan()"
+              onfocus="openBahanDropdown()"
+              onkeydown="handleBahanKeydown(event)"
+            />
             <div class="bahan-dropdown" id="bahanDropdown"></div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="form-group">
-      <label class="form-label">Deskripsi <span style="color:var(--text-muted);font-weight:600;">(opsional)</span></label>
-      <textarea class="form-textarea" id="inputDesc" placeholder="Deskripsi singkat menu…"></textarea>
-    </div>
-
     <div class="form-actions">
       <a href="/owner/menu" class="btn btn-cancel">Batal</a>
-      <button class="btn btn-submit" onclick="submitForm()">Simpan Menu</button>
+      <button class="btn btn-submit" id="btnSubmit" onclick="submitForm()">Simpan Menu</button>
     </div>
   </div>
 </main>
@@ -465,24 +468,37 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  const allBahan = @json($bahanList);
-  let resep = [];
-  let photoFile = null;
+  /* ── Data dari PHP ── */
+  const allBahan    = @json($bahanList);
+  const allKategori = @json($categories);
 
+  let photoFile        = null;
+  let resep            = [];
+  let highlightedIndex = -1;
+
+  /* ══════════════════════════
+     RESEP TABLE
+  ══════════════════════════ */
   function renderResep() {
     const tbody = document.getElementById('resepBody');
-    if (!tbody) return;
-
     tbody.innerHTML = '';
+
     if (resep.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="4"><div class="resep-empty">Belum ada bahan ditambahkan</div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="4">
+        <div class="resep-empty">Belum ada bahan. Cari dan tambahkan bahan di bawah.</div>
+      </td></tr>`;
       return;
     }
+
     resep.forEach((item, i) => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${item.nama}</td>
-        <td><input type="number" class="jumlah-input" step="0.01" min="0" value="${item.jumlah}" onchange="updateJumlah(${i}, this.value)" /></td>
+        <td>
+          <input type="number" class="jumlah-input" step="0.01" min="0"
+                 value="${item.jumlah}"
+                 onchange="updateJumlah(${i}, this.value)" />
+        </td>
         <td class="td-satuan">${item.satuan || '-'}</td>
         <td><button class="btn-hapus" onclick="removeBahan(${i})">Hapus</button></td>
       `;
@@ -491,106 +507,233 @@
   }
 
   function addBahanKeResep(nama, satuan) {
-    if (!resep.find(b => b.nama === nama)) {
-      resep.push({ nama: nama, jumlah: 1, satuan: satuan });
-      renderResep();
+    const normNama = nama.trim();
+    if (resep.find(b => b.nama.toUpperCase() === normNama.toUpperCase())) {
+      showToast(`"${normNama}" sudah ada dalam resep`);
+      return;
     }
+    resep.push({ nama: normNama, jumlah: 1, satuan: satuan || '' });
+    renderResep();
     document.getElementById('tagInput').value = '';
-    closeDropdown();
+    closeBahanDropdown();
   }
 
   function removeBahan(i) {
     resep.splice(i, 1);
     renderResep();
-    filterBahan();
+    filterBahan(); /* refresh dropdown agar tanda ✓ hilang */
   }
 
   function updateJumlah(index, value) {
     resep[index].jumlah = parseFloat(value) || 0;
   }
 
-  function filterBahan() {
-    const query = document.getElementById('tagInput').value.trim().toLowerCase();
+  /* ══════════════════════════
+     BAHAN DROPDOWN
+  ══════════════════════════ */
+  function getFilteredBahan() {
+    const q = document.getElementById('tagInput').value.trim().toLowerCase();
+    return allBahan.filter(b => b.nama_bahan.toLowerCase().includes(q));
+  }
+
+  function renderBahanDropdown(list) {
     const dropdown = document.getElementById('bahanDropdown');
-    const filtered = allBahan.filter(b => b.nama_bahan.toLowerCase().includes(query));
 
-    if (filtered.length === 0) {
+    if (list.length === 0) {
       dropdown.innerHTML = '<div class="bahan-dropdown-empty">Tidak ada bahan ditemukan</div>';
-    } else {
-      dropdown.innerHTML = filtered.map(b => {
-        const isSelected = resep.some(r => r.nama === b.nama_bahan.toUpperCase() || r.nama === b.nama_bahan);
-        return `<div class="bahan-dropdown-item ${isSelected ? 'disabled' : ''}" onclick="${isSelected ? '' : `addBahanKeResep('${b.nama_bahan}', '${b.satuan || ''}')`}">
-          <span>${b.nama_bahan} ${isSelected ? '✓' : ''}</span>
-          <span class="bahan-satuan">${b.satuan || ''}</span>
-        </div>`;
-      }).join('');
+      dropdown.classList.add('open');
+      highlightedIndex = -1;
+      return;
     }
+
+    dropdown.innerHTML = list.map((b, idx) => {
+      const isSelected = resep.some(r => r.nama.toUpperCase() === b.nama_bahan.toUpperCase());
+      return `<div class="bahan-dropdown-item ${isSelected ? 'disabled' : ''}"
+                   data-idx="${idx}"
+                   data-nama="${b.nama_bahan.replace(/"/g,'&quot;')}"
+                   data-satuan="${(b.satuan || '').replace(/"/g,'&quot;')}"
+                   onclick="${isSelected ? '' : `addBahanKeResep('${b.nama_bahan.replace(/'/g,"\\'")}','${(b.satuan||'').replace(/'/g,"\\'")}'); return false;`}">
+        <span>
+          ${b.nama_bahan}
+          ${isSelected ? '<span style="color:var(--green);font-size:12px;margin-left:6px;">✓ sudah ditambahkan</span>' : ''}
+        </span>
+        <span class="bahan-satuan">${b.satuan || ''}</span>
+      </div>`;
+    }).join('');
+
+    dropdown.innerHTML += `<div class="bahan-hint">Klik item atau tekan ↑↓ lalu Enter untuk menambahkan</div>`;
     dropdown.classList.add('open');
+    highlightedIndex = -1;
   }
 
-  function openDropdown() {
-    filterBahan();
+  function filterBahan() {
+    renderBahanDropdown(getFilteredBahan());
   }
 
-  function closeDropdown() {
+  function openBahanDropdown() {
+    renderBahanDropdown(getFilteredBahan());
+  }
+
+  function closeBahanDropdown() {
     setTimeout(() => {
       document.getElementById('bahanDropdown').classList.remove('open');
+      highlightedIndex = -1;
     }, 150);
   }
 
-  // Close dropdown when clicking outside
+  function handleBahanKeydown(e) {
+    const dropdown = document.getElementById('bahanDropdown');
+    const items    = [...dropdown.querySelectorAll('.bahan-dropdown-item:not(.disabled)')];
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      highlightedIndex = Math.min(highlightedIndex + 1, items.length - 1);
+      items.forEach((el, i) => el.classList.toggle('highlighted', i === highlightedIndex));
+      items[highlightedIndex]?.scrollIntoView({ block: 'nearest' });
+
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      highlightedIndex = Math.max(highlightedIndex - 1, 0);
+      items.forEach((el, i) => el.classList.toggle('highlighted', i === highlightedIndex));
+      items[highlightedIndex]?.scrollIntoView({ block: 'nearest' });
+
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (highlightedIndex >= 0 && items[highlightedIndex]) {
+        const el = items[highlightedIndex];
+        addBahanKeResep(el.dataset.nama, el.dataset.satuan);
+      } else {
+        /* Tidak ada yang di-highlight → ambil match pertama yang belum ditambahkan */
+        const first = getFilteredBahan()
+          .find(b => !resep.some(r => r.nama.toUpperCase() === b.nama_bahan.toUpperCase()));
+        if (first) addBahanKeResep(first.nama_bahan, first.satuan);
+      }
+
+    } else if (e.key === 'Escape') {
+      document.getElementById('bahanDropdown').classList.remove('open');
+    }
+  }
+
+  /* ══════════════════════════
+     KATEGORI DROPDOWN
+  ══════════════════════════ */
+  function buildKategoriDropdown(query) {
+    const dropdown = document.getElementById('kategoriDropdown');
+    const current  = document.getElementById('inputKategori').value.trim();
+    const q        = query.toLowerCase();
+
+    const matched = allKategori.filter(k => k.toLowerCase().includes(q));
+    const isNew   = current && !allKategori.some(k => k.toLowerCase() === current.toLowerCase());
+
+    let html = '';
+
+    if (matched.length > 0) {
+      html += matched.map(k => {
+        const isActive = k.toLowerCase() === current.toLowerCase();
+        return `<div class="kategori-dropdown-item ${isActive ? 'active' : ''}"
+                     onclick="selectKategori('${k.replace(/'/g,"\\'")}')">
+          <span>${k}</span>
+          ${isActive ? '<span class="check-icon">✓</span>' : ''}
+        </div>`;
+      }).join('');
+    }
+
+    if (isNew) {
+      if (matched.length > 0) html += '<div class="kategori-divider"></div>';
+      html += `<div class="kategori-dropdown-item"
+                    onclick="selectKategori('${current.replace(/'/g,"\\'")}')">
+        <span>Tambah Kategori Baru "<strong>${current}</strong>"</span>
+      </div>`;
+    }
+
+    if (!html) {
+      html = `<div class="kategori-new-hint">Belum ada kategori. Ketik untuk membuat kategori baru.</div>`;
+    }
+
+    dropdown.innerHTML = html;
+  }
+
+  function openKategoriDropdown() {
+    buildKategoriDropdown(document.getElementById('inputKategori').value);
+    document.getElementById('kategoriDropdown').classList.add('open');
+    document.getElementById('kategoriArrow').style.transform = 'translateY(-50%) rotate(180deg)';
+  }
+
+  function onKategoriInput() {
+    buildKategoriDropdown(document.getElementById('inputKategori').value);
+    document.getElementById('kategoriDropdown').classList.add('open');
+  }
+
+  function selectKategori(value) {
+    document.getElementById('inputKategori').value = value;
+    document.getElementById('kategoriDropdown').classList.remove('open');
+    document.getElementById('kategoriArrow').style.transform = 'translateY(-50%)';
+  }
+
+  /* ══════════════════════════
+     CLOSE ON OUTSIDE CLICK
+  ══════════════════════════ */
   document.addEventListener('click', (e) => {
-    const wrapper = document.querySelector('.bahan-autocomplete-wrapper');
-    if (wrapper && !wrapper.contains(e.target)) {
+    /* Kategori */
+    const katWrapper = document.getElementById('kategoriWrapper');
+    if (katWrapper && !katWrapper.contains(e.target)) {
+      document.getElementById('kategoriDropdown').classList.remove('open');
+      document.getElementById('kategoriArrow').style.transform = 'translateY(-50%)';
+    }
+    /* Bahan */
+    const bahanWrapper = document.querySelector('.bahan-autocomplete-wrapper');
+    if (bahanWrapper && !bahanWrapper.contains(e.target)) {
       document.getElementById('bahanDropdown').classList.remove('open');
     }
   });
 
+  /* ══════════════════════════
+     FOTO
+  ══════════════════════════ */
   function handlePhoto(e) {
     const file = e.target.files[0];
     if (!file) return;
     photoFile = file;
     const reader = new FileReader();
     reader.onload = ev => {
-      document.getElementById('photoPreview').src = ev.target.result;
-      document.getElementById('photoPreview').style.display = 'block';
+      const preview = document.getElementById('photoPreview');
+      preview.src = ev.target.result;
+      preview.classList.add('show');
       document.getElementById('photoPlaceholder').style.display = 'none';
     };
     reader.readAsDataURL(file);
   }
 
+  /* ══════════════════════════
+     SUBMIT
+  ══════════════════════════ */
   async function submitForm() {
+    const btn      = document.getElementById('btnSubmit');
     const nama     = document.getElementById('inputNama').value.trim();
     const harga    = document.getElementById('inputHarga').value;
-    const kategori = document.getElementById('inputKategori').value;
-    const desc     = document.getElementById('inputDesc').value.trim();
+    const kategori = document.getElementById('inputKategori').value.trim();
 
-    // Validation
     if (!nama)                         { showToast('Masukkan nama menu'); return; }
-    if (!harga || parseInt(harga) < 0) { showToast('Masukkan harga valid'); return; }
-    if (!kategori)                     { showToast('Pilih kategori menu'); return; }
+    if (!harga || parseInt(harga) < 0) { showToast('Masukkan harga yang valid'); return; }
+    if (!kategori)                     { showToast('Pilih atau ketik kategori menu'); return; }
 
-    // Build FormData
+    btn.disabled  = true;
+    btn.innerText = 'Menyimpan...';
+    document.getElementById('loadingOverlay').classList.add('show');
+
     const formData = new FormData();
     formData.append('nama_menu', nama.toUpperCase());
     formData.append('harga', harga);
     formData.append('Kategori', kategori);
-    formData.append('deskripsi', desc);
     formData.append('resep', JSON.stringify(resep));
-
-    if (photoFile) {
-      formData.append('foto', photoFile);
-    }
-
-    // Show loading
-    document.getElementById('loadingOverlay').classList.add('show');
+    if (photoFile) formData.append('foto', photoFile);
 
     try {
-      const res = await fetch('/owner/menu', {
-        method: 'POST',
+      const res  = await fetch('/owner/menu', {
+        method : 'POST',
         headers: {
           'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-          'Accept': 'application/json'
+          'Accept'      : 'application/json'
         },
         body: formData
       });
@@ -599,21 +742,25 @@
 
       if (data.success) {
         showToast('Menu berhasil ditambahkan!');
-        setTimeout(() => {
-          window.location.href = '/owner/menu';
-        }, 1200);
+        setTimeout(() => { window.location.href = '/owner/menu'; }, 1200);
       } else {
-        showToast('' + (data.message || 'Gagal menyimpan menu'));
+        showToast(data.message || 'Gagal menyimpan menu');
+        btn.disabled  = false;
+        btn.innerText = 'Simpan Menu';
       }
     } catch (e) {
-      showToast('Terjadi kesalahan server');
       console.error(e);
+      showToast('Terjadi kesalahan server');
+      btn.disabled  = false;
+      btn.innerText = 'Simpan Menu';
     } finally {
       document.getElementById('loadingOverlay').classList.remove('show');
     }
   }
 
-  /* ── Toast ── */
+  /* ══════════════════════════
+     TOAST
+  ══════════════════════════ */
   let toastTimer;
   function showToast(msg) {
     clearTimeout(toastTimer);
@@ -623,6 +770,7 @@
     toastTimer = setTimeout(() => el.classList.remove('show'), 2400);
   }
 
+  /* ── Init ── */
   renderResep();
 </script>
 </body>

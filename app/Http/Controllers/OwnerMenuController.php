@@ -10,8 +10,9 @@ class OwnerMenuController extends Controller
 {
     public function create()
     {
-        $bahanList = StokBahan::orderBy('nama_bahan')->get(['id_bahan', 'nama_bahan', 'satuan'])->toArray();
-        return view('Owner.Create_menu', compact('bahanList'));
+        $bahanList  = StokBahan::orderBy('nama_bahan')->get(['id_bahan', 'nama_bahan', 'satuan'])->toArray();
+        $categories = Menu::distinct()->pluck('Kategori')->filter()->values()->toArray();
+        return view('Owner.Create_menu', compact('bahanList', 'categories'));
     }
 
     public function store(Request $request)
@@ -90,6 +91,7 @@ if (!empty($resepData)) {
             ];
         })->toArray() : [],
         'kategori' => $menu->Kategori,
+'status' => $menu->status_tersedia,
         'foto' => $menu->foto ? 'data:image/jpeg;base64,' . base64_encode($menu->foto) : null,
     ];
 
@@ -112,6 +114,8 @@ if (!empty($resepData)) {
         if ($request->has('Kategori')) {
             $menu->Kategori = $request->input('Kategori');
         }
+
+        $menu->status_tersedia = $request->input('status', 1);
 
         if ($request->hasFile('foto')) {
             $menu->foto = file_get_contents($request->file('foto')->getRealPath());
