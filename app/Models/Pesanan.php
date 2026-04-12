@@ -21,7 +21,8 @@ class Pesanan extends Model
         'nama',
         'tipe_order',
         'status_pembayaran',
-        'payment_reference'
+        'payment_reference',
+        'catatan'
     ];
 
     public function detailPesanan()

@@ -31,6 +31,7 @@ class PaymentController extends Controller
         $email = $request->input('email');
         $orderType = $request->input('orderType', 'dine_in');
         $amount = $request->input('amount');
+        $catatan = $request->input('catatan');
 
         $tipeOrderDb = 'dine_in';
         if (str_contains(strtolower($orderType), 'bawa pulang') || str_contains(strtolower($orderType), 'take')) {
@@ -55,6 +56,7 @@ class PaymentController extends Controller
             $pesanan->total_harga = $amount;
             $pesanan->total_pesanan = $totalPesanan;
             $pesanan->tipe_order = $tipeOrderDb;
+            $pesanan->catatan = $catatan;
             $pesanan->status_pembayaran = 'Belum Lunas';
             $pesanan->save();
 
@@ -64,7 +66,7 @@ class PaymentController extends Controller
                 $detail->id_menu = $item['id'];
                 $detail->jumlah = $item['qty'];
                 $detail->harga_satuan = $item['price'] / $item['qty'];
-                $detail->kustomisasi = $item['note'] ?? null; 
+                $detail->kustomisasi = $item['notes'] ?? $item['note'] ?? null;
                 $detail->save();
             }
 
@@ -94,7 +96,8 @@ class PaymentController extends Controller
             'total_harga' => $amount,
             'total_pesanan' => $totalPesanan,
             'tipe_order' => $tipeOrderDb,
-            'cart' => $cart
+            'cart' => $cart,
+            'catatan' => $catatan
         ];
         
         // Simpan sementara berdasarkan Merchant Order ID
@@ -270,6 +273,7 @@ class PaymentController extends Controller
         $pesanan->total_harga = $orderData['total_harga'];
         $pesanan->total_pesanan = $orderData['total_pesanan'];
         $pesanan->tipe_order = $orderData['tipe_order'];
+        $pesanan->catatan = $orderData['catatan'] ?? null;
         $pesanan->status_pembayaran = 'Lunas';
         $pesanan->payment_reference = $reference;
         $pesanan->save();
@@ -282,7 +286,7 @@ class PaymentController extends Controller
             $detail->harga_satuan = isset($item['price'], $item['qty']) && $item['qty'] > 0
                 ? $item['price'] / $item['qty']
                 : 0;
-            $detail->kustomisasi = $item['note'] ?? null;
+            $detail->kustomisasi = $item['notes'] ?? $item['note'] ?? null;
             $detail->save();
         }
  

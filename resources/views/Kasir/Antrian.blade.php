@@ -20,10 +20,10 @@
                     />
                 </svg>
             </div>
-            <p class="sidebar-name">Name</p>
-            <p class="sidebar-id">(16284261)</p>
+            <p class="sidebar-name">Kasir</p>
+            <p class="sidebar-id"></p>
 
-            <a class="nav-item active" href="#">
+            <a class="nav-item active" href="/kasir/antrian">
                 <svg viewBox="0 0 24 24">
                     <line x1="3" y1="6" x2="21" y2="6" />
                     <line x1="3" y1="12" x2="21" y2="12" />
@@ -68,15 +68,7 @@
                     <option value="">Semua Status</option>
                     <option value="lunas">Lunas</option>
                     <option value="belum">Belum Lunas</option>
-                    <option value="proses">Diproses</option>
                 </select>
-                <button class="btn-add" onclick="addDummy()">
-                    <svg viewBox="0 0 24 24">
-                        <line x1="12" y1="5" x2="12" y2="19" />
-                        <line x1="5" y1="12" x2="19" y2="12" />
-                    </svg>
-                    Tambah Antrian
-                </button>
             </div>
 
             <!-- Table Card -->
@@ -731,48 +723,7 @@
 <!--Javascript-->
 <script>
     /* ── Data ── */
-    let queue = [
-        {
-            id: 1,
-            nama: "Masyai",
-            jumlah: 10,
-            total: 24000000,
-            status: "lunas",
-            menu: "Cheese Burger",
-        },
-        {
-            id: 2,
-            nama: "Budi",
-            jumlah: 3,
-            total: 72000,
-            status: "belum",
-            menu: "Beef Burger",
-        },
-        {
-            id: 3,
-            nama: "Sinta",
-            jumlah: 5,
-            total: 110000,
-            status: "proses",
-            menu: "Chicken Burger",
-        },
-        {
-            id: 4,
-            nama: "Raka",
-            jumlah: 2,
-            total: 49000,
-            status: "lunas",
-            menu: "Cheese Burger",
-        },
-        {
-            id: 5,
-            nama: "Dewi",
-            jumlah: 7,
-            total: 168000,
-            status: "belum",
-            menu: "Beef Burger",
-        },
-    ];
+    let queue = {!! json_encode($queue) !!};
 
     let filtered = [...queue];
     let currentRow = null;
@@ -781,30 +732,16 @@
 
     /* ── Format ── */
     function fmt(n) {
-        return "Rp" + n.toLocaleString("id-ID");
+        return "Rp" + parseInt(n || 0).toLocaleString("id-ID");
     }
 
     /* ── Status badge ── */
     function statusBadge(row) {
         const map = {
-            lunas: `<span class="badge badge-lunas" onclick="cycleStatus(${row.id})">LUNAS</span>`,
-            belum: `<span class="badge badge-belum" onclick="cycleStatus(${row.id})">BELUM LUNAS</span>`,
-            proses: `<span class="badge badge-proses" onclick="cycleStatus(${row.id})">DIPROSES</span>`,
+            lunas: `<span class="badge badge-lunas">LUNAS</span>`,
+            belum: `<span class="badge badge-belum">BELUM LUNAS</span>`,
         };
         return map[row.status] || "";
-    }
-
-    function cycleStatus(id) {
-        const r = queue.find((x) => x.id === id);
-        if (!r) return;
-        const cycle = {
-            belum: "proses",
-            proses: "lunas",
-            lunas: "belum",
-        };
-        r.status = cycle[r.status];
-        applyFilter();
-        showToast(`Status ${r.nama} → ${r.status.toUpperCase()}`);
     }
 
     /* ── Filter & Render ── */
@@ -850,16 +787,16 @@
             slice.forEach((row) => {
                 const tr = document.createElement("tr");
                 tr.innerHTML = `
-            ]<td class="td-name">${row.nama}</td>
-            ]<td>${row.jumlah}</td>
-            ]<td>${fmt(row.total)}</td>
-            ]<td>
+            <td class="td-name">${row.nama}</td>
+            <td>${row.jumlah}</td>
+            <td>${fmt(row.total)}</td>
+            <td>
             <div class="badge-stack">
                 ${statusBadge(row)}
             </div>
             </td>
         <td>
-            <button class="btn-lihat" onclick="openDetail(${row.id})">LIHAT</button>
+            <a class="btn-lihat" href="/kasir/detail/${row.id}" style="text-decoration:none;">LIHAT</a>
         </td>
         `;
                 tbody.appendChild(tr);
@@ -952,7 +889,7 @@
         "Chicken Burger",
         "Fish Burger",
     ];
-    const dummyStatus = ["lunas", "belum", "proses"];
+    const dummyStatus = ["lunas", "belum"];
 
     function addDummy() {
         const name = dummyNames[Math.floor(Math.random() * dummyNames.length)];

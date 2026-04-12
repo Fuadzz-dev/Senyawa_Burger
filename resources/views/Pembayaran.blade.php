@@ -800,6 +800,7 @@
         const email = document.getElementById("inputEmail").value.trim();
         const orderType = document.getElementById("orderTypeText").textContent.trim();
         const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+        const catatan = localStorage.getItem("checkout_catatan") || "";
 
         if (cartItems.length === 0) {
             showToast("Keranjang belanja kosong!");
@@ -813,7 +814,8 @@
             orderType: orderType,
             amount: amount,
             paymentMethod: currentMethod,
-            cart: cartItems
+            cart: cartItems,
+            catatan: catatan
         };
 
         showToast("Sedang memproses pesanan...");
@@ -914,80 +916,80 @@
         }, 10000); // 10 detik simulasi
     }
 
-    //simulasi 
-    function pollPaymentStatus(reference) {
-        clearTimeout(paymentTimeout);
-        
-        // Mulai hitung mundur 10 detik (10000 ms)
-        paymentTimeout = setTimeout(async () => {
-            if (!document.getElementById("qrisModal").classList.contains("open")) {
-                return; // Batalkan jika user sudah menutup modal duluan
-            }
-            
-            try {
-                // Panggil endpoint buatan kita untuk mengubah status DB jadi Lunas
-                await fetch(`/api/pembayaran/simulate-success/${reference}`);
-                
-                // --- UPDATE UI MENJADI SUKSES ---
-                document.getElementById("qrisImageContainer").style.display = "none";
-                document.getElementById("qrisSuccessAnim").style.display = "flex";
-                document.getElementById("btnCancelQris").style.display = "none";
-                
-                document.getElementById("qrisStatusText").textContent = "Pembayaran Berhasil Diverifikasi!";
-                document.getElementById("qrisStatusText").style.color = "var(--orange)";
-                document.getElementById("qrisStatusText").style.fontWeight = "bold";
-                document.getElementById("qrisStatusText").style.fontSize = "1.1rem";
-                
-                showToast("Pembayaran QRIS berhasil diterima!");
-                
-                // Redirect ke halaman utama / nota setelah animasi selesai
-                setTimeout(() => {
-                    window.location.href = "/";
-                }, 2500);
-
-            } catch (error) {
-                console.error("Simulation error", error);
-            }
-        }, 10000); // 10000 milidetik = 10 detik
-    }
-
+    // //simulasi 
     // function pollPaymentStatus(reference) {
     //     clearTimeout(paymentTimeout);
+        
+    //     // Mulai hitung mundur 10 detik (10000 ms)
     //     paymentTimeout = setTimeout(async () => {
     //         if (!document.getElementById("qrisModal").classList.contains("open")) {
-    //             return;
+    //             return; // Batalkan jika user sudah menutup modal duluan
     //         }
             
     //         try {
-    //             const response = await fetch(`/api/pembayaran/status/${reference}`);
-    //             const data = await response.json();
+    //             // Panggil endpoint buatan kita untuk mengubah status DB jadi Lunas
+    //             await fetch(`/api/pembayaran/simulate-success/${reference}`);
                 
-    //             if (data.success && data.statusCode === "00") {
-    //                 localStorage.removeItem('cart');
-    //                 localStorage.removeItem('checkout_total');
-    //                 document.getElementById("qrisImageContainer").style.display = "none";
-    //                 document.getElementById("qrisSuccessAnim").style.display = "flex";
-    //                 document.getElementById("btnCancelQris").style.display = "none";
-                    
-    //                 document.getElementById("qrisStatusText").textContent = "Pembayaran Berhasil Diverifikasi!";
-    //                 document.getElementById("qrisStatusText").style.color = "var(--orange)";
-    //                 document.getElementById("qrisStatusText").style.fontWeight = "bold";
-    //                 document.getElementById("qrisStatusText").style.fontSize = "1.1rem";
-                    
-    //                 showToast("Pembayaran QRIS berhasil diterima!");
-                    
-    //                 setTimeout(() => {
-    //                     window.location.href = "{{ url('/') }}";
-    //                 }, 2500);
-    //             } else {
-    //                 pollPaymentStatus(reference);
-    //             }
+    //             // --- UPDATE UI MENJADI SUKSES ---
+    //             document.getElementById("qrisImageContainer").style.display = "none";
+    //             document.getElementById("qrisSuccessAnim").style.display = "flex";
+    //             document.getElementById("btnCancelQris").style.display = "none";
+                
+    //             document.getElementById("qrisStatusText").textContent = "Pembayaran Berhasil Diverifikasi!";
+    //             document.getElementById("qrisStatusText").style.color = "var(--orange)";
+    //             document.getElementById("qrisStatusText").style.fontWeight = "bold";
+    //             document.getElementById("qrisStatusText").style.fontSize = "1.1rem";
+                
+    //             showToast("Pembayaran QRIS berhasil diterima!");
+                
+    //             // Redirect ke halaman utama / nota setelah animasi selesai
+    //             setTimeout(() => {
+    //                 window.location.href = "/";
+    //             }, 2500);
+
     //         } catch (error) {
-    //             console.error("Polling error", error);
-    //             pollPaymentStatus(reference);
+    //             console.error("Simulation error", error);
     //         }
-    //     }, 5000);
+    //     }, 10000); // 10000 milidetik = 10 detik
     // }
+
+    function pollPaymentStatus(reference) {
+        clearTimeout(paymentTimeout);
+        paymentTimeout = setTimeout(async () => {
+            if (!document.getElementById("qrisModal").classList.contains("open")) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/pembayaran/status/${reference}`);
+                const data = await response.json();
+                
+                if (data.success && data.statusCode === "00") {
+                    localStorage.removeItem('cart');
+                    localStorage.removeItem('checkout_total');
+                    document.getElementById("qrisImageContainer").style.display = "none";
+                    document.getElementById("qrisSuccessAnim").style.display = "flex";
+                    document.getElementById("btnCancelQris").style.display = "none";
+                    
+                    document.getElementById("qrisStatusText").textContent = "Pembayaran Berhasil Diverifikasi!";
+                    document.getElementById("qrisStatusText").style.color = "var(--orange)";
+                    document.getElementById("qrisStatusText").style.fontWeight = "bold";
+                    document.getElementById("qrisStatusText").style.fontSize = "1.1rem";
+                    
+                    showToast("Pembayaran QRIS berhasil diterima!");
+                    
+                    setTimeout(() => {
+                        window.location.href = "{{ url('/') }}";
+                    }, 2500);
+                } else {
+                    pollPaymentStatus(reference);
+                }
+            } catch (error) {
+                console.error("Polling error", error);
+                pollPaymentStatus(reference);
+            }
+        }, 5000);
+    }
 
     function goBack() {
         window.location.href = "{{ url('/keranjang') }}";

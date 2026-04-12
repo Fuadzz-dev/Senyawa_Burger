@@ -59,6 +59,12 @@
 
         <div class="divider"></div>
 
+        <!-- Global Notes -->
+        <div class="section" style="padding-top: 0; padding-bottom: 10px; padding-left: 16px; padding-right: 16px;">
+            <p style="font-size: 0.85rem; font-weight: 700; color: var(--dark); margin-bottom: 8px;">Catatan Lainnya</p>
+            <textarea id="checkoutCatatan" placeholder="Cth: Jangan pakai kantong plastik, dsb..." style="width: 100%; height: 75px; border: 1.5px solid #eee; border-radius: 12px; padding: 10px 14px; font-family: 'Nunito', sans-serif; font-size: 0.85rem; resize: none; outline: none; transition: border-color 0.2s; background: var(--card-bg);" onfocus="this.style.borderColor='var(--orange)'" onblur="this.style.borderColor='#eee'"></textarea>
+        </div>
+
         <!-- Payment Summary -->
         <div class="payment-box">
             <div class="payment-title">Rincian Pembayaran</div>
@@ -697,6 +703,8 @@
     function checkout() {
         const t = document.getElementById("bottomTotal").textContent;
         localStorage.setItem("checkout_total", t);
+        const catatan = document.getElementById("checkoutCatatan") ? document.getElementById("checkoutCatatan").value : "";
+        localStorage.setItem("checkout_catatan", catatan);
         window.location.href = "{{ url('/pembayaran') }}";
     }
 

@@ -3,12 +3,125 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>Detail Pesanan – Kasir</title>
         <link
             href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap"
             rel="stylesheet"
         />
-        <style>
+        
+    </head>
+    <body>
+        <!-- ═══ SIDEBAR ═══ -->
+        <aside class="sidebar">
+            <div class="avatar">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"
+                    />
+                </svg>
+            </div>
+
+            <p class="sidebar-name">Name</p>
+            <p class="sidebar-id">(16284261)</p>
+            
+            <a class="nav-item active" href="/kasir/antrian">
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <line x1="3" y1="12" x2="21" y2="12" />
+                    <line x1="3" y1="18" x2="21" y2="18" />
+                </svg>
+                Daftar Antrian
+            </a>
+
+            <div class="sidebar-footer">
+                <button class="btn-logout" onclick="confirmLogout()">
+                    Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- ═══ MAIN ═══ -->
+        <main class="main">
+            <h1 class="page-title">Detail Pesanan ( {{ $pesanan->nama }} )</h1>
+
+            <!-- Order Table Card -->
+            <div class="order-card">
+                <div class="order-card-header">Daftar Detail Pesanan</div>
+                <table class="order-table">
+                    <thead>
+                        <tr>
+                            <th>Nama Menu</th>
+                            <th>Jumlah</th>
+                            <th>Total Pembayaran</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orderTableBody">
+                        <!-- filled by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Bottom Area -->
+            <div class="bottom-area">
+                <div class="notes-block">
+                    <label>Catatan Lainnya</label>
+                    <textarea
+                        id="catatanLainnya"
+                        placeholder="Tidak ada catatan pesanan."
+                        readonly
+                        style="background-color: transparent;"
+                    >{{ trim($pesanan->catatan ?? '') ?: '-' }}</textarea>
+                </div>
+
+                <div class="total-block">
+                    <div class="total-label">Total</div>
+                    <div class="total-amount" id="grandTotal">Rp24.000.000</div>
+                    <button
+                        class="btn-konfirmasi-lunas {{ strtolower($pesanan->status_pembayaran) == 'lunas' ? 'paid' : '' }}"
+                        id="btnLunas"
+                        onclick="toggleLunas()"
+                    >
+                        {{ strtolower($pesanan->status_pembayaran) == 'lunas' ? '✓ Sudah Lunas' : 'Konfirmasi Lunas' }}
+                    </button>
+                </div>
+            </div>
+
+            <!-- Big Confirm Button -->
+            <button class="btn-selesai" onclick="confirmSelesai()">
+                Konfirmasi Pesanan Selesai
+            </button>
+        </main>
+
+        <!-- ═══ CONFIRM MODAL ═══ -->
+        <div class="modal-overlay" id="modal">
+            <div class="modal">
+                <div class="modal-icon" id="modalIcon"></div>
+                <p class="modal-title" id="modalTitle">Konfirmasi</p>
+                <p class="modal-body" id="modalBody">Apakah Anda yakin?</p>
+                <div class="modal-actions">
+                    <button class="modal-btn cancel" onclick="closeModal()">
+                        Batal
+                    </button>
+                    <button class="modal-btn confirm" id="modalConfirmBtn">
+                        Ya, Lanjutkan
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast -->
+        <div class="toast" id="toast"></div>
+    </body>
+</html>
+
+<!--Css-->
+<style>
             *,
             *::before,
             *::after {
@@ -251,29 +364,22 @@
                 margin-bottom: 10px;
             }
 
-            .note-label {
-                font-size: 0.8rem;
-                font-weight: 700;
+            .item-note {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                margin-top: 5px;
+                font-size: 0.85rem;
                 color: var(--gray);
-                margin-bottom: 6px;
+                font-style: italic;
             }
-
-            .note-input {
-                width: 100%;
-                max-width: 260px;
-                border: 1.5px solid var(--border);
-                border-radius: var(--radius);
-                padding: 9px 12px;
-                font-family: "Nunito", sans-serif;
-                font-size: 13.5px;
-                color: var(--text-dark);
-                background: transparent;
-                resize: none;
-                outline: none;
-                transition: border-color 0.2s;
-            }
-            .note-input:focus {
-                border-color: var(--orange);
+            .item-note svg {
+                width: 15px;
+                height: 15px;
+                stroke: var(--gray);
+                stroke-width: 1.8;
+                flex-shrink: 0;
+                fill: none;
             }
 
             .qty-cell {
@@ -371,7 +477,7 @@
             .btn-konfirmasi-lunas:hover {
                 background: #8d2b02;
                 transform: translateY(-2px);
-                box-shadow: 0 8px 28px rgba(232, 80, 10, 0.5);
+                box-shadow: 0 8px 28px #8d2b02
             }
             .btn-konfirmasi-lunas.paid {
                 background: rgba(60, 184, 120, 0.1);
@@ -403,7 +509,7 @@
             .btn-selesai:hover {
                 background: var(--orange-light);
                 transform: translateY(-2px);
-                box-shadow: 0 8px 28px rgba(232, 80, 10, 0.5);
+                box-shadow: 0 8px 28px #00ff1580;
             }
             .btn-selesai:active {
                 transform: scale(0.98);
@@ -530,126 +636,20 @@
                 transform: translateX(-50%) translateY(0);
             }
         </style>
-    </head>
-    <body>
-        <!-- ═══ SIDEBAR ═══ -->
-        <aside class="sidebar">
-            <div class="avatar">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                        d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"
-                    />
-                </svg>
-            </div>
 
-            <p class="sidebar-name" id="sidebarName">Name</p>
-            <p class="sidebar-id" id="sidebarId">(16284261)</p>
-
-            <a class="nav-item active" href="#" onclick="return false;">
-                <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                >
-                    <line x1="3" y1="6" x2="21" y2="6" />
-                    <line x1="3" y1="12" x2="21" y2="12" />
-                    <line x1="3" y1="18" x2="21" y2="18" />
-                </svg>
-                Daftar Antrian
-            </a>
-
-            <div class="sidebar-footer">
-                <button class="btn-logout" onclick="confirmLogout()">
-                    Logout
-                </button>
-            </div>
-        </aside>
-
-        <!-- ═══ MAIN ═══ -->
-        <main class="main">
-            <h1 class="page-title">Detail Pesanan</h1>
-
-            <!-- Order Table Card -->
-            <div class="order-card">
-                <div class="order-card-header">Daftar Detail Pesanan</div>
-                <table class="order-table">
-                    <thead>
-                        <tr>
-                            <th>Nama Menu</th>
-                            <th>Jumlah</th>
-                            <th>Total Pembayaran</th>
-                        </tr>
-                    </thead>
-                    <tbody id="orderTableBody">
-                        <!-- filled by JS -->
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Bottom Area -->
-            <div class="bottom-area">
-                <div class="notes-block">
-                    <label>Catatan Lainnya</label>
-                    <textarea
-                        id="catatanLainnya"
-                        placeholder="Tambahkan catatan untuk pesanan ini…"
-                    ></textarea>
-                </div>
-
-                <div class="total-block">
-                    <div class="total-label">Total</div>
-                    <div class="total-amount" id="grandTotal">Rp24.000.000</div>
-                    <button
-                        class="btn-konfirmasi-lunas"
-                        id="btnLunas"
-                        onclick="toggleLunas()"
-                    >
-                        Konfirmasi Lunas
-                    </button>
-                </div>
-            </div>
-
-            <!-- Big Confirm Button -->
-            <button class="btn-selesai" onclick="confirmSelesai()">
-                Konfirmasi Pesanan Selesai
-            </button>
-        </main>
-
-        <!-- ═══ CONFIRM MODAL ═══ -->
-        <div class="modal-overlay" id="modal">
-            <div class="modal">
-                <div class="modal-icon" id="modalIcon">✅</div>
-                <p class="modal-title" id="modalTitle">Konfirmasi</p>
-                <p class="modal-body" id="modalBody">Apakah Anda yakin?</p>
-                <div class="modal-actions">
-                    <button class="modal-btn cancel" onclick="closeModal()">
-                        Batal
-                    </button>
-                    <button class="modal-btn confirm" id="modalConfirmBtn">
-                        Ya, Lanjutkan
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Toast -->
-        <div class="toast" id="toast"></div>
-
-        <script>
+ <!--JavaScript--> 
+ <script>
             /* ── Data ── */
-            const orders = [
-                { name: "CHEESE BURGER", qty: 10, price: 2400000, note: "" },
-            ];
+            const orders = {!! json_encode($orders) !!};
 
-            let isPaid = false;
+            let isPaid = {{ strtolower($pesanan->status_pembayaran) == 'lunas' ? 'true' : 'false' }};
             let pendingAction = null;
 
             /* ── Helpers ── */
             function fmt(n) {
                 return (
                     "Rp" +
-                    n
+                    parseInt(n || 0)
                         .toLocaleString("id-ID")
                         .replace(/\./g, ".")
                         .replace(",", ".")
@@ -671,10 +671,19 @@
                     tr.innerHTML = `
         <td>
           <div class="item-name">${item.name}</div>
-          <div class="note-label">Catatan</div>
-          <textarea class="note-input" placeholder="" onchange="orders[${i}].note=this.value">${item.note}</textarea>
+          <div class="item-note" style="${item.note ? "" : "display:none;"}">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+            ${item.note}
+          </div>
         </td>
-        <td><span class="qty-cell">${item.qty}</span></td>
+        <td>
+          <span class="qty-cell">${item.qty}</span>
+        </td>
         <td><span class="total-cell">${fmt(item.price * item.qty)}</span></td>
       `;
                     tbody.appendChild(tr);
@@ -692,27 +701,60 @@
             /* ── Lunas Toggle ── */
             function toggleLunas() {
                 if (isPaid) {
-                    isPaid = false;
-                    document
-                        .getElementById("btnLunas")
-                        .classList.remove("paid");
-                    document.getElementById("btnLunas").textContent =
-                        "Konfirmasi Lunas";
-                    showToast("Status pembayaran dibatalkan");
+                    openModal(
+                        "",
+                        "Batalkan Lunas",
+                        "Apakah Anda yakin ingin membatalkan status lunas pesanan ini?",
+                        async () => {
+                            try {
+                                const response = await fetch('/kasir/detail/{{ $pesanan->id_pesanan }}/unlunas', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                    }
+                                });
+                                const data = await response.json();
+                                if (data.success) {
+                                    isPaid = false;
+                                    document.getElementById("btnLunas").classList.remove("paid");
+                                    document.getElementById("btnLunas").textContent = "Konfirmasi Lunas";
+                                    showToast(data.message);
+                                } else {
+                                    showToast("❌ " + data.message);
+                                }
+                            } catch (error) {
+                                showToast("❌ Terjadi kesalahan jaringan");
+                            }
+                        }
+                    );
                 } else {
                     openModal(
-                        "💰",
+                        "",
                         "Konfirmasi Lunas",
                         "Tandai pesanan ini sebagai sudah lunas dibayar?",
-                        () => {
-                            isPaid = true;
-                            document
-                                .getElementById("btnLunas")
-                                .classList.add("paid");
-                            document.getElementById("btnLunas").textContent =
-                                "✓ Sudah Lunas";
-                            showToast("Pembayaran dikonfirmasi lunas");
-                        },
+                        async () => {
+                            try {
+                                const response = await fetch('/kasir/detail/{{ $pesanan->id_pesanan }}/lunas', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                    }
+                                });
+                                const data = await response.json();
+                                if (data.success) {
+                                    isPaid = true;
+                                    document.getElementById("btnLunas").classList.add("paid");
+                                    document.getElementById("btnLunas").textContent = "✓ Sudah Lunas";
+                                    showToast(data.message);
+                                } else {
+                                    showToast("❌ " + data.message);
+                                }
+                            } catch (error) {
+                                showToast("❌ Terjadi kesalahan jaringan");
+                            }
+                        }
                     );
                 }
             }
@@ -720,25 +762,47 @@
             /* ── Selesai ── */
             function confirmSelesai() {
                 if (!isPaid) {
-                    showToast("⚠️ Konfirmasi lunas terlebih dahulu");
+                    showToast("Konfirmasi lunas terlebih dahulu");
                     return;
                 }
                 openModal(
-                    "🎉",
+                    "",
                     "Pesanan Selesai",
                     "Konfirmasi bahwa pesanan ini telah selesai dan siap diserahkan?",
-                    () =>
-                        showToast("✅ Pesanan berhasil dikonfirmasi selesai!"),
+                    async () => {
+                        try {
+                            const response = await fetch('/kasir/detail/{{ $pesanan->id_pesanan }}/selesai', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                },
+                                body: JSON.stringify({ isPaid: isPaid })
+                            });
+
+                            const data = await response.json();
+
+                            if (data.success) {
+                                showToast(" " + data.message);
+                                setTimeout(() => {
+                                    window.location.href = '/kasir/antrian';
+                                }, 1500);
+                            } else {
+                                showToast(" " + data.message);
+                            }
+                        } catch (error) {
+                            showToast(" Terjadi kesalahan jaringan");
+                        }
+                    }
                 );
             }
 
             /* ── Logout ── */
             function confirmLogout() {
                 openModal(
-                    "👋",
                     "Logout",
                     "Apakah Anda yakin ingin keluar dari sistem?",
-                    () => showToast("👋 Berhasil logout"),
+                    () => showToast("Berhasil logout"),
                 );
             }
 
@@ -757,8 +821,9 @@
             }
 
             document.getElementById("modalConfirmBtn").onclick = () => {
+                const action = pendingAction;
                 closeModal();
-                if (pendingAction) pendingAction();
+                if (action) action();
             };
 
             document.getElementById("modal").addEventListener("click", (e) => {
@@ -781,5 +846,3 @@
             /* ── Init ── */
             renderTable();
         </script>
-    </body>
-</html>
