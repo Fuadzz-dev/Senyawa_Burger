@@ -28,17 +28,24 @@ class OwnerMenuController extends Controller
         $menu->save();
 
         // Sync bahan (ingredients)
-        $bahanNames = json_decode($request->input('bahan', '[]'), true);
-        if (!empty($bahanNames)) {
-            $bahanIds = [];
-            foreach ($bahanNames as $name) {
-                $bahan = \App\Models\StokBahan::where('nama_bahan', $name)->first();
-                if ($bahan) {
-                    $bahanIds[$bahan->id_bahan] = ['jumlah_digunakan' => 1];
-                }
-            }
-            $menu->bahan()->sync($bahanIds);
+        $resepData = json_decode($request->input('resep', '[]'), true);
+
+if (!empty($resepData)) {
+    $bahanIds = [];
+    foreach ($resepData as $item) {
+        $bahan = \App\Models\StokBahan::where('nama_bahan', $item['nama'])->first();
+        if ($bahan) {
+            // Gunakan jumlah yang dinamis dari input form, bukan angka statis 1
+            $bahanIds[$bahan->id_bahan] = [
+                'jumlah_digunakan' => $item['jumlah'] 
+            ];
         }
+    }
+    // Lakukan sinkronisasi ke tabel pivot resep (menu_bahan)
+    $menu->bahan()->sync($bahanIds);
+} else {
+    $menu->bahan()->detach();
+}
 
         return response()->json([
             'success' => true,
@@ -72,7 +79,13 @@ class OwnerMenuController extends Controller
             'id' => $menu->id_menu,
             'nama' => $menu->nama_menu,
             'harga' => intval($menu->harga),
-            'bahan' => $menu->bahan ? $menu->bahan->pluck('nama_bahan')->toArray() : [],
+            'bahan' => $menu->bahan ? $menu->bahan->map(function($b) {
+    return [
+        'nama_bahan' => $b->nama_bahan,
+        'jumlah_digunakan' => $b->pivot->jumlah_digunakan, // Ambil dari tabel pivot resep
+        'satuan' => $b->satuan
+    ];
+})->toArray() : [],
             'kategori' => $menu->Kategori,
             'foto' => $menu->foto ? 'data:image/jpeg;base64,' . base64_encode($menu->foto) : null,
         ];
@@ -98,19 +111,25 @@ class OwnerMenuController extends Controller
         $menu->save();
 
         // Sync bahan (ingredients)
-        $bahanNames = json_decode($request->input('bahan', '[]'), true);
-        if (!empty($bahanNames)) {
-            $bahanIds = [];
-            foreach ($bahanNames as $name) {
-                $bahan = \App\Models\StokBahan::where('nama_bahan', $name)->first();
-                if ($bahan) {
-                    $bahanIds[$bahan->id_bahan] = ['jumlah_digunakan' => 1];
-                }
-            }
-            $menu->bahan()->sync($bahanIds);
-        } else {
-            $menu->bahan()->detach();
+        // Ambil input resep yang dikirim dari frontend
+$resepData = json_decode($request->input('resep', '[]'), true);
+
+if (!empty($resepData)) {
+    $bahanIds = [];
+    foreach ($resepData as $item) {
+        $bahan = \App\Models\StokBahan::where('nama_bahan', $item['nama'])->first();
+        if ($bahan) {
+            // Gunakan jumlah yang dinamis dari input form, bukan angka statis 1
+            $bahanIds[$bahan->id_bahan] = [
+                'jumlah_digunakan' => $item['jumlah'] 
+            ];
         }
+    }
+    // Lakukan sinkronisasi ke tabel pivot resep (menu_bahan)
+    $menu->bahan()->sync($bahanIds);
+} else {
+    $menu->bahan()->detach();
+}
 
         return response()->json([
             'success' => true,

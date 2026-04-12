@@ -168,35 +168,119 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
-    /* Tags input for bahan */
-    .tags-container {
-      border: 1.5px solid var(--border); border-radius: 8px;
-      padding: 10px 12px; background: #fff; min-height: 54px;
-      display: flex; flex-wrap: wrap; gap: 8px; cursor: text;
+    /* Kategori select */
+    .form-select {
+      width: 100%; border: 1.5px solid var(--border); border-radius: 8px;
+      padding: 12px 14px;
+      font-family: "Nunito", sans-serif; font-size: 14px; color: var(--text-dark);
+      outline: none; background: #fff;
       transition: border-color 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
     }
-    .tags-container:focus-within {
+    .form-select:focus {
       border-color: var(--orange);
       box-shadow: 0 0 0 3px rgba(232,80,10,0.2);
     }
-    .tag-item {
-      background: var(--cream); border: 1px solid #ECD7C3; border-radius: 20px;
-      padding: 6px 12px; font-size: 13px; font-weight: 700;
-      color: var(--text-dark); display: flex; align-items: center; gap: 6px;
+
+    /* ══ RESEP TABLE ══ */
+    .resep-container {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
     }
-    .tag-remove {
-      cursor: pointer; color: var(--text-muted); font-size: 16px; line-height: 1;
-      transition: color 0.15s;
+
+    .resep-table { width: 100%; border-collapse: collapse; }
+
+    .resep-table thead th {
+      padding: 12px 20px;
+      font-size: 11.5px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.8px;
+      color: var(--text-muted);
+      border-bottom: 1.5px solid var(--border);
+      text-align: center; background: #FAFAF8;
     }
-    .tag-remove:hover { color: var(--red); }
-    .tag-input {
-      border: none; outline: none; flex: 1; min-width: 120px;
-      font-family: "Nunito", sans-serif; font-size: 14px; color: var(--text-dark);
-      background: transparent; padding: 4px 2px;
+    .resep-table thead th:first-child { text-align: left; }
+
+    .resep-table tbody tr { transition: background 0.15s; }
+    .resep-table tbody tr:hover { background: #F5F2EE; }
+
+    .resep-table tbody td {
+      padding: 14px 20px;
+      font-size: 14px; color: var(--text-dark);
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle; text-align: center;
+    }
+    .resep-table tbody tr:last-child td { border-bottom: none; }
+    .resep-table tbody td:first-child {
+      text-align: left; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.4px;
+    }
+
+    .resep-table .td-satuan {
+      font-size: 13px; color: var(--text-muted); font-weight: 600;
+    }
+
+    .resep-table .jumlah-input {
+      width: 120px; padding: 6px 10px; border: 1.5px solid var(--border);
+      border-radius: 8px; font-family: "Nunito", sans-serif;
+      font-size: 14px; font-weight: 700; text-align: center;
+      color: var(--text-dark); outline: none; background: #fff;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .resep-table .jumlah-input:focus {
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px rgba(232,80,10,0.2);
+    }
+
+    .btn-hapus {
+      display: inline-block;
+      padding: 5px 16px; border-radius: var(--pill); border: none;
+      font-family: "Nunito", sans-serif;
+      font-size: 11.5px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      cursor: pointer; color: #fff; background: var(--red);
+      transition: filter 0.15s, transform 0.15s;
+    }
+    .btn-hapus:hover { filter: brightness(1.1); }
+    .btn-hapus:active { transform: scale(0.95); }
+
+    .resep-empty {
+      text-align: center; padding: 30px 20px;
+      color: var(--text-muted); font-size: 14px; font-weight: 600;
+    }
+
+    /* ══ SEARCH BAHAN ══ */
+    .bahan-search-wrap {
+      display: flex; align-items: center;
+      border-top: 1.5px solid var(--border);
+      padding: 12px 16px; background: #FAFAF8;
+      position: relative;
+    }
+    .bahan-search-wrap input {
+      width: 100%; border: 1.5px solid var(--border); border-radius: 8px;
+      padding: 10px 14px; padding-left: 36px;
+      font-family: "Nunito", sans-serif; font-size: 13.5px;
+      color: var(--text-dark); outline: none; background: #fff;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .bahan-search-wrap input:focus {
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px rgba(232,80,10,0.2);
+    }
+    .bahan-search-wrap input::placeholder { color: #C0BCB7; }
+    .bahan-search-icon {
+      position: absolute; left: 28px; top: 50%; transform: translateY(-50%);
+      width: 16px; height: 16px; stroke: var(--text-muted); stroke-width: 2; fill: none;
     }
 
     /* Autocomplete dropdown */
-    .bahan-autocomplete-wrapper { position: relative; }
+    .bahan-autocomplete-wrapper {}
     .bahan-dropdown {
       display: none; position: absolute; top: 100%; left: 0; right: 0;
       background: #fff; border: 1.5px solid var(--border); border-top: none;
@@ -266,7 +350,7 @@
   </a>
 
   <div class="sidebar-footer">
-    <button class="btn-logout" onclick="alert('👋 Berhasil logout')">Logout</button>
+    <button class="btn-logout" onclick="alert('Berhasil logout')">Logout</button>
   </div>
 </aside>
 
@@ -281,7 +365,7 @@
         <input type="file" accept="image/*" id="photoInput" onchange="handlePhoto(event)" />
         <img id="photoPreview" class="photo-upload-preview" src="{{ $menu['foto'] ?? '' }}" style="{{ $menu['foto'] ? '' : 'display:none;' }}" />
         <div id="photoPlaceholder" style="{{ $menu['foto'] ? 'display:none;' : '' }}">
-          <div class="photo-upload-icon">📷</div>
+          <div class="photo-upload-icon"></div>
           <div class="photo-upload-text">Klik untuk ganti foto</div>
         </div>
       </div>
@@ -298,12 +382,37 @@
     </div>
 
     <div class="form-group">
-      <label class="form-label">Bahan yang Diperlukan <span style="color:var(--text-muted);font-weight:600;">(ketik untuk mencari bahan)</span></label>
-      <div class="bahan-autocomplete-wrapper">
-        <div class="tags-container" id="tagsContainer" onclick="document.getElementById('tagInput').focus()">
-          <input class="tag-input" id="tagInput" placeholder="Cari bahan…" oninput="filterBahan()" onfocus="openDropdown()" autocomplete="off" />
+      <label class="form-label">Kategori</label>
+      <select class="form-select" id="inputKategori">
+        <option value="" disabled selected>Pilih kategori…</option>
+        <option value="Makanan">Makanan</option>
+        <option value="Minuman">Minuman</option>
+        <option value="Snack">Snack</option>
+        <option value="Dessert">Dessert</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Bahan yang Diperlukan</label>
+      <div class="resep-container">
+        <table class="resep-table" id="tabelResep">
+          <thead>
+            <tr>
+              <th>Nama Bahan</th>
+              <th>Jumlah Digunakan</th>
+              <th>Satuan</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="resepBody"></tbody>
+        </table>
+        <div class="bahan-search-wrap">
+          <div class="bahan-autocomplete-wrapper" style="width:100%;">
+            <svg class="bahan-search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="tagInput" placeholder="Cari dan tambah bahan ke resep..." oninput="filterBahan()" onfocus="openDropdown()" autocomplete="off" />
+            <div class="bahan-dropdown" id="bahanDropdown"></div>
+          </div>
         </div>
-        <div class="bahan-dropdown" id="bahanDropdown"></div>
       </div>
     </div>
 
@@ -322,51 +431,65 @@
 <script>
   const menuData = @json($menu);
   const allBahan = @json($bahanList);
-  let tags = menuData.bahan || [];
   let photoFile = null;
+  let resep = menuData.bahan ? menuData.bahan.map(b => ({ 
+      nama: b.nama_bahan, 
+      jumlah: b.jumlah_digunakan || 1, // Default 1 jika belum ada
+      satuan: b.satuan 
+  })) : [];
 
-  function renderTags() {
-    const container = document.getElementById('tagsContainer');
-    const input = document.getElementById('tagInput');
-    container.innerHTML = '';
-    tags.forEach((tag, i) => {
-      const span = document.createElement('span');
-      span.className = 'tag-item';
-      span.innerHTML = `${tag} <span class="tag-remove" onclick="removeTag(${i})">×</span>`;
-      container.appendChild(span);
+  function renderResep() {
+    const tbody = document.getElementById('resepBody');
+    if (!tbody) return;
+
+    tbody.innerHTML = '';
+    if (resep.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="4"><div class="resep-empty">Belum ada bahan ditambahkan</div></td></tr>`;
+      return;
+    }
+    resep.forEach((item, i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${item.nama}</td>
+        <td><input type="number" class="jumlah-input" step="0.01" min="0" value="${item.jumlah}" onchange="updateJumlah(${i}, this.value)" /></td>
+        <td class="td-satuan">${item.satuan || '-'}</td>
+        <td><button class="btn-hapus" onclick="removeBahan(${i})">Hapus</button></td>
+      `;
+      tbody.appendChild(tr);
     });
-    container.appendChild(input);
   }
 
-  function removeTag(i) {
-    tags.splice(i, 1);
-    renderTags();
-    filterBahan();
-  }
-
-  function addTag(name) {
-    const val = name.trim().toUpperCase();
-    if (val && !tags.includes(val)) {
-      tags.push(val);
-      renderTags();
+  function addBahanKeResep(nama, satuan) {
+    if(!resep.find(b => b.nama === nama)) {
+        resep.push({ nama: nama, jumlah: 1, satuan: satuan });
+        renderResep();
     }
     document.getElementById('tagInput').value = '';
     closeDropdown();
   }
 
+  function removeBahan(i) {
+    resep.splice(i, 1);
+    renderResep();
+    filterBahan();
+  }
+
+  function updateJumlah(index, value) {
+    resep[index].jumlah = parseFloat(value) || 0;
+  }
+
   function filterBahan() {
     const query = document.getElementById('tagInput').value.trim().toLowerCase();
     const dropdown = document.getElementById('bahanDropdown');
-    const filtered = allBahan.filter(b =>
-      b.nama_bahan.toLowerCase().includes(query)
-    );
+    const filtered = allBahan.filter(b => b.nama_bahan.toLowerCase().includes(query));
 
     if (filtered.length === 0) {
       dropdown.innerHTML = '<div class="bahan-dropdown-empty">Tidak ada bahan ditemukan</div>';
     } else {
       dropdown.innerHTML = filtered.map(b => {
-        const isSelected = tags.includes(b.nama_bahan.toUpperCase());
-        return `<div class="bahan-dropdown-item ${isSelected ? 'disabled' : ''}" onclick="${isSelected ? '' : `addTag('${b.nama_bahan}')`}">
+        // Cek apakah bahan sudah ada di resep
+        const isSelected = resep.some(r => r.nama === b.nama_bahan.toUpperCase() || r.nama === b.nama_bahan);
+        return `<div class="bahan-dropdown-item ${isSelected ? 'disabled' : ''}" onclick="${isSelected ? '' : `addBahanKeResep('${b.nama_bahan}', '${b.satuan || ''}')`}">
           <span>${b.nama_bahan} ${isSelected ? '✓' : ''}</span>
           <span class="bahan-satuan">${b.satuan || ''}</span>
         </div>`;
@@ -411,19 +534,19 @@
     const harga = document.getElementById('inputHarga').value;
     const desc  = document.getElementById('inputDesc').value.trim();
 
-
-
-    if (!nama)                          { alert('⚠️ Masukkan nama menu'); return; }
-    if (!harga || parseInt(harga) < 0)  { alert('⚠️ Masukkan harga valid'); return; }
+    if (!nama) { alert('⚠️ Masukkan nama menu'); return; }
+    if (!harga || parseInt(harga) < 0) { alert('⚠️ Masukkan harga valid'); return; }
 
     const formData = new FormData();
     formData.append('nama_menu', nama.toUpperCase());
     formData.append('harga', harga);
-    formData.append('bahan', JSON.stringify(tags));
     formData.append('deskripsi', desc);
+    
+    // INI YANG DIUBAH: Kirim array resep (nama & jumlah), bukan tags
+    formData.append('resep', JSON.stringify(resep)); 
 
     if (photoFile) {
-      formData.append('foto', photoFile);
+        formData.append('foto', photoFile);
     }
 
     try {
@@ -437,20 +560,43 @@
       });
 
       const data = await res.json();
-
       if (data.success) {
-        alert('✅ Perubahan menu berhasil disimpan!');
+        alert('Perubahan menu berhasil disimpan!');
         window.location.href = '/owner/menu';
       } else {
-        alert('❌ ' + (data.message || 'Gagal menyimpan perubahan'));
+        alert('' + (data.message || 'Gagal menyimpan perubahan'));
       }
     } catch (e) {
-      alert('❌ Terjadi kesalahan server');
+      alert('Terjadi kesalahan server');
       console.error(e);
     }
   }
 
-  renderTags();
+  async function submitForm() {
+    const nama     = document.getElementById('inputNama').value.trim();
+    const harga    = document.getElementById('inputHarga').value;
+    const kategori = document.getElementById('inputKategori').value;
+    const desc     = document.getElementById('inputDesc').value.trim();
+
+    // Validation
+    if (!nama)                         { showToast('Masukkan nama menu'); return; }
+    if (!harga || parseInt(harga) < 0) { showToast('Masukkan harga valid'); return; }
+    if (!kategori)                     { showToast('Pilih kategori menu'); return; }
+
+    // Build FormData
+    const formData = new FormData();
+    formData.append('nama_menu', nama.toUpperCase());
+    formData.append('harga', harga);
+    formData.append('Kategori', kategori);
+    formData.append('deskripsi', desc);
+    formData.append('resep', JSON.stringify(resep));
+
+    if (photoFile) {
+      formData.append('foto', photoFile);
+    }
+  }
+  
+  renderResep();
 </script>
 </body>
 </html>
