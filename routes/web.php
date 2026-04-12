@@ -40,5 +40,9 @@ Route::put('/owner/bahan/{id}', [StokBahanController::class, 'update']);
 Route::delete('/owner/bahan/{id}', [StokBahanController::class, 'destroy']);
 
 Route::get('/owner/menu', [OwnerMenuController::class, 'index']);
+Route::get('/owner/menu/create', [OwnerMenuController::class, 'create']);
+Route::post('/owner/menu', [OwnerMenuController::class, 'store']);
+Route::get('/owner/menu/{id}/edit', [OwnerMenuController::class, 'edit']);
+Route::post('/owner/menu/{id}/update', [OwnerMenuController::class, 'update']);
 Route::delete('/owner/menu/{id}', [OwnerMenuController::class, 'destroy']);
 

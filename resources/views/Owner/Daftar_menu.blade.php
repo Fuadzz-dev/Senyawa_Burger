@@ -408,8 +408,8 @@
   <div class="avatar">
     <svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
   </div>
-  <p class="sidebar-name">Name</p>
-  <p class="sidebar-id">(16284261)</p>
+  <p class="sidebar-name">Owner</p>
+  <p class="sidebar-id"></p>
 
   <a class="nav-item" href="#" onclick="showToast('Laporan')">
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -578,7 +578,7 @@
           <td class="td-price">${fmt(item.harga)}</td>
           <td>
             <div class="action-btns">
-              <button class="btn-action btn-update" onclick="window.location.href='Update_menu.blade.php?id=${item.id}'">UPDATE</button>
+              <button class="btn-action btn-update" onclick="window.location.href='/owner/menu/${item.id}/edit'">UPDATE</button>
               <button class="btn-action btn-delete" onclick="openDeleteModal(${item.id})">DELETE</button>
             </div>
           </td>

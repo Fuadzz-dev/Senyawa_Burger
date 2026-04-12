@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Update Menu – Admin</title>
+  <title>Create Menu – Admin</title>
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <link
       href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap"
@@ -235,6 +235,54 @@
     .btn-cancel:hover { background: #E0DCD8; }
     .btn-submit { background: var(--orange); color: #fff; box-shadow: 0 4px 12px rgba(232, 80, 10, 0.25); }
     .btn-submit:hover { background: var(--orange-bg); }
+
+    /* Kategori select */
+    .form-select {
+      width: 100%; border: 1.5px solid var(--border); border-radius: 8px;
+      padding: 12px 14px;
+      font-family: "Nunito", sans-serif; font-size: 14px; color: var(--text-dark);
+      outline: none; background: #fff;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+    }
+    .form-select:focus {
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px rgba(232,80,10,0.2);
+    }
+
+    /* ══ TOAST ══ */
+    .toast {
+      position: fixed; bottom: 28px; left: 50%;
+      transform: translateX(-50%) translateY(16px);
+      background: #1A1512; color: #fff;
+      padding: 11px 22px; border-radius: 100px;
+      font-size: 14px; font-weight: 500;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s, transform 0.3s;
+      z-index: 999; white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* Loading overlay */
+    .loading-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.3); z-index: 500;
+      align-items: center; justify-content: center;
+    }
+    .loading-overlay.show { display: flex; }
+    .loading-spinner {
+      width: 48px; height: 48px;
+      border: 4px solid #fff;
+      border-top-color: var(--orange);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -244,8 +292,8 @@
   <div class="avatar">
     <svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
   </div>
-  <p class="sidebar-name">Name</p>
-  <p class="sidebar-id">(16284261)</p>
+  <p class="sidebar-name">Owner</p>
+  <p class="sidebar-id"></p>
 
   <a class="nav-item" href="#">
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -272,29 +320,40 @@
 
 <!-- ═══ MAIN ═══ -->
 <main class="main">
-  <h1 class="page-title">Update Menu</h1>
+  <h1 class="page-title">Tambah Menu Baru</h1>
 
   <div class="form-card">
     <div class="form-group">
       <label class="form-label">Foto Menu</label>
       <div class="photo-upload" id="photoUploadArea">
         <input type="file" accept="image/*" id="photoInput" onchange="handlePhoto(event)" />
-        <img id="photoPreview" class="photo-upload-preview" src="{{ $menu['foto'] ?? '' }}" style="{{ $menu['foto'] ? '' : 'display:none;' }}" />
-        <div id="photoPlaceholder" style="{{ $menu['foto'] ? 'display:none;' : '' }}">
+        <img id="photoPreview" class="photo-upload-preview" style="display:none;" />
+        <div id="photoPlaceholder">
           <div class="photo-upload-icon">📷</div>
-          <div class="photo-upload-text">Klik untuk ganti foto</div>
+          <div class="photo-upload-text">Klik untuk upload foto</div>
         </div>
       </div>
     </div>
 
     <div class="form-group">
       <label class="form-label">Nama Menu</label>
-      <input class="form-input" id="inputNama" type="text" value="{{ $menu['nama'] ?? '' }}" placeholder="cth. Cheese Burger, Beef Burger…" />
+      <input class="form-input" id="inputNama" type="text" placeholder="cth. Cheese Burger, Beef Burger…" />
     </div>
 
     <div class="form-group">
       <label class="form-label">Harga (Rp)</label>
-      <input class="form-input" id="inputHarga" type="number" min="0" step="500" value="{{ $menu['harga'] ?? '' }}" placeholder="cth. 24500" />
+      <input class="form-input" id="inputHarga" type="number" min="0" step="500" placeholder="cth. 24500" />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Kategori</label>
+      <select class="form-select" id="inputKategori">
+        <option value="" disabled selected>Pilih kategori…</option>
+        <option value="Makanan">Makanan</option>
+        <option value="Minuman">Minuman</option>
+        <option value="Snack">Snack</option>
+        <option value="Dessert">Dessert</option>
+      </select>
     </div>
 
     <div class="form-group">
@@ -309,20 +368,26 @@
 
     <div class="form-group">
       <label class="form-label">Deskripsi <span style="color:var(--text-muted);font-weight:600;">(opsional)</span></label>
-      <textarea class="form-textarea" id="inputDesc" placeholder="Deskripsi singkat menu…">{{ $menu['desc'] ?? '' }}</textarea>
+      <textarea class="form-textarea" id="inputDesc" placeholder="Deskripsi singkat menu…"></textarea>
     </div>
 
     <div class="form-actions">
       <a href="/owner/menu" class="btn btn-cancel">Batal</a>
-      <button class="btn btn-submit" onclick="submitForm()">Simpan Perubahan</button>
+      <button class="btn btn-submit" onclick="submitForm()">Simpan Menu</button>
     </div>
   </div>
 </main>
 
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
 <script>
-  const menuData = @json($menu);
   const allBahan = @json($bahanList);
-  let tags = menuData.bahan || [];
+  let tags = [];
   let photoFile = null;
 
   function renderTags() {
@@ -407,27 +472,35 @@
   }
 
   async function submitForm() {
-    const nama  = document.getElementById('inputNama').value.trim();
-    const harga = document.getElementById('inputHarga').value;
-    const desc  = document.getElementById('inputDesc').value.trim();
+    const nama     = document.getElementById('inputNama').value.trim();
+    const harga    = document.getElementById('inputHarga').value;
+    const kategori = document.getElementById('inputKategori').value;
+    const desc     = document.getElementById('inputDesc').value.trim();
 
 
 
-    if (!nama)                          { alert('⚠️ Masukkan nama menu'); return; }
-    if (!harga || parseInt(harga) < 0)  { alert('⚠️ Masukkan harga valid'); return; }
+    // Validation
+    if (!nama)                          { showToast('⚠️ Masukkan nama menu'); return; }
+    if (!harga || parseInt(harga) < 0)  { showToast('⚠️ Masukkan harga valid'); return; }
+    if (!kategori)                      { showToast('⚠️ Pilih kategori menu'); return; }
 
+    // Build FormData
     const formData = new FormData();
     formData.append('nama_menu', nama.toUpperCase());
     formData.append('harga', harga);
-    formData.append('bahan', JSON.stringify(tags));
+    formData.append('Kategori', kategori);
     formData.append('deskripsi', desc);
+    formData.append('bahan', JSON.stringify(tags));
 
     if (photoFile) {
       formData.append('foto', photoFile);
     }
 
+    // Show loading
+    document.getElementById('loadingOverlay').classList.add('show');
+
     try {
-      const res = await fetch(`/owner/menu/${menuData.id}/update`, {
+      const res = await fetch('/owner/menu', {
         method: 'POST',
         headers: {
           'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
@@ -439,15 +512,29 @@
       const data = await res.json();
 
       if (data.success) {
-        alert('✅ Perubahan menu berhasil disimpan!');
-        window.location.href = '/owner/menu';
+        showToast('✅ Menu berhasil ditambahkan!');
+        setTimeout(() => {
+          window.location.href = '/owner/menu';
+        }, 1200);
       } else {
-        alert('❌ ' + (data.message || 'Gagal menyimpan perubahan'));
+        showToast('❌ ' + (data.message || 'Gagal menyimpan menu'));
       }
     } catch (e) {
-      alert('❌ Terjadi kesalahan server');
+      showToast('❌ Terjadi kesalahan server');
       console.error(e);
+    } finally {
+      document.getElementById('loadingOverlay').classList.remove('show');
     }
+  }
+
+  /* ── Toast ── */
+  let toastTimer;
+  function showToast(msg) {
+    clearTimeout(toastTimer);
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    toastTimer = setTimeout(() => el.classList.remove('show'), 2400);
   }
 
   renderTags();

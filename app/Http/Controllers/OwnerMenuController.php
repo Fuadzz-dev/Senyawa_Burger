@@ -4,9 +4,48 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Menu;
+use App\Models\StokBahan;
 
 class OwnerMenuController extends Controller
 {
+    public function create()
+    {
+        $bahanList = StokBahan::orderBy('nama_bahan')->get(['id_bahan', 'nama_bahan', 'satuan'])->toArray();
+        return view('Owner.Create_menu', compact('bahanList'));
+    }
+
+    public function store(Request $request)
+    {
+        $menu = new Menu();
+        $menu->nama_menu = $request->input('nama_menu');
+        $menu->harga = $request->input('harga');
+        $menu->Kategori = $request->input('Kategori');
+
+        if ($request->hasFile('foto')) {
+            $menu->foto = file_get_contents($request->file('foto')->getRealPath());
+        }
+
+        $menu->save();
+
+        // Sync bahan (ingredients)
+        $bahanNames = json_decode($request->input('bahan', '[]'), true);
+        if (!empty($bahanNames)) {
+            $bahanIds = [];
+            foreach ($bahanNames as $name) {
+                $bahan = \App\Models\StokBahan::where('nama_bahan', $name)->first();
+                if ($bahan) {
+                    $bahanIds[$bahan->id_bahan] = ['jumlah_digunakan' => 1];
+                }
+            }
+            $menu->bahan()->sync($bahanIds);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Menu berhasil ditambahkan.'
+        ]);
+    }
+
     public function index()
     {
         $menusRaw = Menu::with('bahan')->get();
@@ -18,11 +57,65 @@ class OwnerMenuController extends Controller
                 'harga' => intval($item->harga),
                 'bahan' => $item->bahan ? $item->bahan->pluck('nama_bahan')->toArray() : [],
                 'kategori' => $item->Kategori,
-                'foto' => $item->foto ? asset('storage/' . $item->foto) : null,
+                'foto' => $item->foto ? 'data:image/jpeg;base64,' . base64_encode($item->foto) : null,
             ];
         })->values()->toArray();
 
         return view('Owner.Daftar_menu', compact('menus'));
+    }
+
+    public function edit($id)
+    {
+        $menu = Menu::with('bahan')->findOrFail($id);
+
+        $menuData = [
+            'id' => $menu->id_menu,
+            'nama' => $menu->nama_menu,
+            'harga' => intval($menu->harga),
+            'bahan' => $menu->bahan ? $menu->bahan->pluck('nama_bahan')->toArray() : [],
+            'kategori' => $menu->Kategori,
+            'foto' => $menu->foto ? 'data:image/jpeg;base64,' . base64_encode($menu->foto) : null,
+        ];
+
+        $bahanList = StokBahan::orderBy('nama_bahan')->get(['id_bahan', 'nama_bahan', 'satuan'])->toArray();
+        return view('Owner.Update_menu', ['menu' => $menuData, 'bahanList' => $bahanList]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $menu = Menu::findOrFail($id);
+        $menu->nama_menu = $request->input('nama_menu');
+        $menu->harga = $request->input('harga');
+
+        if ($request->has('Kategori')) {
+            $menu->Kategori = $request->input('Kategori');
+        }
+
+        if ($request->hasFile('foto')) {
+            $menu->foto = file_get_contents($request->file('foto')->getRealPath());
+        }
+
+        $menu->save();
+
+        // Sync bahan (ingredients)
+        $bahanNames = json_decode($request->input('bahan', '[]'), true);
+        if (!empty($bahanNames)) {
+            $bahanIds = [];
+            foreach ($bahanNames as $name) {
+                $bahan = \App\Models\StokBahan::where('nama_bahan', $name)->first();
+                if ($bahan) {
+                    $bahanIds[$bahan->id_bahan] = ['jumlah_digunakan' => 1];
+                }
+            }
+            $menu->bahan()->sync($bahanIds);
+        } else {
+            $menu->bahan()->detach();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Menu berhasil diperbarui.'
+        ]);
     }
 
     public function destroy($id)
