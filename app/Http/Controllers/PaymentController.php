@@ -28,7 +28,7 @@ class PaymentController extends Controller
     {
         $request->validate([
             'nama' => 'required|string|max:255',
-            'phone' => 'required|regex:/^(\\+62|08)[0-9]{8,13}$/',
+            'phone' => ['required', 'regex:/^(\+62|08)[0-9]{8,13}$/'],
             'email' => 'required|email:rfc,dns',
         ], [
             'nama.required' => 'Nama lengkap wajib diisi.',
@@ -102,23 +102,7 @@ class PaymentController extends Controller
         }
 
         // --- Duitku Online QRIS ---
-        // 1. Buat ID Pesanan Sementara
         $merchantOrderId = 'TRX-' . time() . '-' . Str::random(5);
-
-        // 2. Simpan Data Order ke CACHE (Kadaluarsa dalam 15 menit, mengikuti QRIS)
-        $orderData = [
-            'nama' => $nama,
-            'no_telepon' => $phone,
-            'email' => $email,
-            'total_harga' => $amount,
-            'total_pesanan' => $totalPesanan,
-            'tipe_order' => $tipeOrderDb,
-            'cart' => $cart,
-            'catatan' => $catatan
-        ];
-        
-        // Simpan sementara berdasarkan Merchant Order ID
-        Cache::put('temp_order_' . $merchantOrderId, $orderData, now()->addMinutes(15));
 
         $productDetails = 'Pembayaran Pesanan ' . $merchantOrderId;
         $paymentMethod = 'SP'; 
@@ -145,10 +129,28 @@ class PaymentController extends Controller
         $response = Http::post($url, $params);
 
         if ($response->successful() && isset($response['qrString'])) {
-            // Pindahkan cache agar kuncinya menggunakan $reference dari Duitku
-            // Ini mempermudah pencarian saat fungsi notifikasi/simulasi dijalankan nanti
-            Cache::put('temp_order_' . $response['reference'], $orderData, now()->addMinutes(15));
-            Cache::forget('temp_order_' . $merchantOrderId); // Hapus cache ID lama
+            // Simpan pesanan ke Database dengan status Belum Lunas
+            $pesanan = new Pesanan();
+            $pesanan->nama = $nama;
+            $pesanan->no_telepon = $phone;
+            $pesanan->email = $email;
+            $pesanan->total_harga = $amount;
+            $pesanan->total_pesanan = $totalPesanan;
+            $pesanan->tipe_order = $tipeOrderDb;
+            $pesanan->catatan = $catatan;
+            $pesanan->status_pembayaran = 'Belum Lunas';
+            $pesanan->payment_reference = $response['reference'];
+            $pesanan->save();
+
+            foreach ($cart as $item) {
+                $detail = new DetailPesanan();
+                $detail->id_pesanan = $pesanan->id_pesanan;
+                $detail->id_menu = $item['id'];
+                $detail->jumlah = $item['qty'];
+                $detail->harga_satuan = $item['price'] / $item['qty'];
+                $detail->kustomisasi = $item['notes'] ?? $item['note'] ?? null;
+                $detail->save();
+            }
 
             return response()->json([
                 'success' => true,
@@ -264,60 +266,33 @@ class PaymentController extends Controller
 
     public function simulateSuccess($reference)
     {
-        $cacheKey = 'temp_order_' . $reference;
-        $orderData = Cache::get($cacheKey);
- 
-        if (!$orderData) {
+        $existing = Pesanan::where('payment_reference', $reference)->first();
+
+        if (!$existing) {
             return response()->json([
                 'success' => false,
-                'message' => 'Data pesanan tidak ditemukan atau sudah kadaluarsa.'
+                'message' => 'Data pesanan tidak ditemukan.'
             ], 404);
         }
  
-        // Cek apakah pesanan sudah pernah disimpan (hindari duplikasi)
-        $existing = Pesanan::where('payment_reference', $reference)->first();
-        if ($existing) {
+        if ($existing->status_pembayaran === 'Lunas') {
             return response()->json([
                 'success' => true,
-                'message' => 'Pesanan sudah tersimpan sebelumnya.',
+                'message' => 'Pesanan sudah lunas sebelumnya.',
                 'id_pesanan' => $existing->id_pesanan
             ]);
         }
  
-        // Simpan pesanan ke database dengan status Lunas
-        $pesanan = new Pesanan();
-        $pesanan->nama = $orderData['nama'];
-        $pesanan->no_telepon = $orderData['no_telepon'];
-        $pesanan->email = $orderData['email'];
-        $pesanan->total_harga = $orderData['total_harga'];
-        $pesanan->total_pesanan = $orderData['total_pesanan'];
-        $pesanan->tipe_order = $orderData['tipe_order'];
-        $pesanan->catatan = $orderData['catatan'] ?? null;
-        $pesanan->status_pembayaran = 'Lunas';
-        $pesanan->payment_reference = $reference;
-        $pesanan->save();
- 
-        Mail::to($pesanan->email)->send(new StrukMail($pesanan));
- 
-        foreach ($orderData['cart'] as $item) {
-            $detail = new DetailPesanan();
-            $detail->id_pesanan = $pesanan->id_pesanan;
-            $detail->id_menu = $item['id'];
-            $detail->jumlah = $item['qty'];
-            $detail->harga_satuan = isset($item['price'], $item['qty']) && $item['qty'] > 0
-                ? $item['price'] / $item['qty']
-                : 0;
-            $detail->kustomisasi = $item['notes'] ?? $item['note'] ?? null;
-            $detail->save();
-        }
- 
-        // Hapus dari cache setelah berhasil disimpan
-        Cache::forget($cacheKey);
- 
+        // Ubah status ke Lunas dan kirim struk
+        $existing->status_pembayaran = 'Lunas';
+        $existing->save();
+  
+        Mail::to($existing->email)->send(new StrukMail($existing));
+  
         return response()->json([
             'success' => true,
-            'message' => 'Pembayaran dikonfirmasi dan pesanan disimpan.',
-            'id_pesanan' => $pesanan->id_pesanan
+            'message' => 'Pembayaran dikonfirmasi dan status diperbarui.',
+            'id_pesanan' => $existing->id_pesanan
         ]);
     }
 

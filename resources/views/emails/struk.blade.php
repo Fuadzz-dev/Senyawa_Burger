@@ -93,7 +93,7 @@
         <div class="footer">
             <p>Terima kasih atas pembelian Anda di CodeCraft Studio!</p>
             <p>Struk ini dapat dicetak atau disimpan sebagai bukti pembayaran.</p>
-            <p>Tanggal: {{ $pesanan->created_at->format('d/m/Y H:i') }}</p>
+            <p>Tanggal: {{ $pesanan->created_at ? \Carbon\Carbon::parse($pesanan->created_at)->format('d/m/Y H:i') : now()->format('d/m/Y H:i') }}</p>
         </div>
     </div>
 </body>

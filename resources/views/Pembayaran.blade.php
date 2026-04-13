@@ -675,7 +675,7 @@
             return;
         }
 
-        const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             showToast("Format email tidak valid");
             document.getElementById("inputEmail").parentElement.classList.add('invalid');
