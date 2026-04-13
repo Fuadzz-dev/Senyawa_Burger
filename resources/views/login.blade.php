@@ -391,7 +391,7 @@
       <h1 class="brand-title">Senyawa<br><span>Burger</span></h1>
       <p class="brand-sub">Sistem Manajemen Restoran – v1.0</p>
     </div>
-  </div>
+  </div>  
 
   <!-- ═══ RIGHT PANEL ═══ -->
   <div class="panel-right">

@@ -7,7 +7,7 @@ use App\Http\Controllers\KasirController;
 use App\Http\Controllers\StokBahanController;
 use App\Http\Controllers\OwnerMenuController;
 use App\Http\Controllers\AuthController;
-
+use App\Http\Controllers\LaporanKeuanganController;
 
 // ── Auth ──
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -55,5 +55,7 @@ Route::middleware(['role:owner,manajer,admin'])->group(function () {
     Route::get('/owner/menu/{id}/edit', [OwnerMenuController::class, 'edit']);
     Route::post('/owner/menu/{id}/update', [OwnerMenuController::class, 'update']);
     Route::delete('/owner/menu/{id}', [OwnerMenuController::class, 'destroy']);
+
+    Route::get('/owner/laporan', [LaporanKeuanganController::class, 'index']);
 });
 
