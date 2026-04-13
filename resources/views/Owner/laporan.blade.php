@@ -556,7 +556,7 @@ function renderTablePage() {
   const start  = (page - 1) * PER_PAGE;
   const slice  = allLaporan.slice(start, start + PER_PAGE);
 
-  if (!slice.length) return; /* sudah ada @forelse fallback dari Blade jika kosong */
+  if (!slice.length) return; /* sudah ada forelse fallback dari Blade jika kosong */
 
   tbody.innerHTML = slice.map(row => {
     const badgeClass = 'badge-' + row.tipe.toLowerCase();
