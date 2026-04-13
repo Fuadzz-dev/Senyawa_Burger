@@ -65,6 +65,7 @@ if (!empty($resepData)) {
                 'harga' => intval($item->harga),
                 'bahan' => $item->bahan ? $item->bahan->pluck('nama_bahan')->toArray() : [],
                 'kategori' => $item->Kategori,
+                'status' => (bool) $item->status_tersedia,
                 'foto' => $item->foto ? 'data:image/jpeg;base64,' . base64_encode($item->foto) : null,
             ];
         })->values()->toArray();
@@ -91,8 +92,9 @@ if (!empty($resepData)) {
             ];
         })->toArray() : [],
         'kategori' => $menu->Kategori,
-'status' => $menu->status_tersedia,
+        'status' => (bool) $menu->status_tersedia,
         'foto' => $menu->foto ? 'data:image/jpeg;base64,' . base64_encode($menu->foto) : null,
+        
     ];
 
     $bahanList = StokBahan::orderBy('nama_bahan')->get(['id_bahan', 'nama_bahan', 'satuan'])->toArray();

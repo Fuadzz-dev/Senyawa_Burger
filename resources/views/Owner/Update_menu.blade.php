@@ -331,35 +331,23 @@
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ══ STATUS TOGGLE ══ */
-    .status-toggle-group { margin-top: 20px; padding-top: 20px; border-top: 1.5px solid var(--border); }
-    .toggle-wrapper {
-      display: flex; align-items: center; gap: 12px;
-      font-size: 14px; font-weight: 600; color: var(--text-dark);
-    }
-    .toggle-switch {
-      position: relative; display: inline-block; width: 52px; height: 28px;
-    }
-    .toggle-switch input { opacity: 0; width: 0; height: 0; }
-    .toggle-slider {
-      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-      background: #ccc; border-radius: 28px; transition: 0.3s;
-      cursor: pointer;
-    }
-    .toggle-slider:before {
-      position: absolute; content: ''; height: 22px; width: 22px;
-      left: 3px; bottom: 3px; background: #fff; border-radius: 50%;
-      transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
-    input:checked + .toggle-slider { background: var(--green); }
-    input:checked + .toggle-slider:before { transform: translateX(24px); }
-    .toggle-slider:after {
-      content: attr(data-label); position: absolute; top: 50%; left: 8px;
-      transform: translateY(-50%); font-size: 11px; font-weight: 700;
-      color: #fff; text-transform: uppercase; letter-spacing: 0.3px; opacity: 0.9;
-      transition: opacity 0.3s, transform 0.3s;
-    }
-    input:checked + .toggle-slider:after { content: 'YA'; left: 30px; transform: translateY(-50%) translateX(-50%); }
-    .toggle-label { font-size: 13px; color: var(--text-muted); }
+.status-toggle-group { margin-top: 20px; padding-top: 20px; border-top: 1.5px solid var(--border); }
+.btn-toggle-status {
+  width: 100%; padding: 12px; border: none; border-radius: 8px;
+  font-family: "Nunito", sans-serif; font-size: 14.5px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+  text-align: center;
+}
+.btn-toggle-status:active { transform: scale(0.97); }
+.btn-toggle-status.status-tersedia {
+  background: var(--green); color: #fff;
+  box-shadow: 0 4px 12px rgba(76,175,80,0.3);
+}
+.btn-toggle-status.status-tidak {
+  background: #ff0000ff; color: #fff;
+  box-shadow: none;
+}
   </style>
 </head>
 <body>
@@ -505,18 +493,10 @@
     </div>
 
     {{-- ── Status Ketersediaan Toggle ── --}}
-    <div class="status-toggle-group">
-      <label class="form-label">Status Ketersediaan Menu</label>
-      <div class="toggle-wrapper">
-        <span class="toggle-label">Menu ini tidak tersedia</span>
-        <label class="toggle-switch">
-          <input type="checkbox" id="menuStatus" />
-          <span class="toggle-slider" data-label="TIDAK"></span>
-        </label>
-        <span class="toggle-label" style="color: var(--green);">Menu ini tersedia</span>
-      </div>
-    </div>
-  </div>
+<div class="status-toggle-group">
+  <label class="form-label">Status Ketersediaan Menu</label>
+  <button type="button" id="btnToggleStatus" onclick="toggleStatus()"></button>
+</div>
 
 <!-- Loading overlay -->
 <div class="loading-overlay" id="loadingOverlay">
@@ -537,7 +517,7 @@
   /* Inisialisasi resep dari data menu yang sudah ada */
   let resep = (menuData.bahan || []).map(b => ({
     nama  : b.nama,
-    jumlah: parseFloat(b.jumlah) || 1,
+    jumlah: Number(b.jumlah) || 1,
     satuan: b.satuan || ''
   }));
 
@@ -560,7 +540,7 @@
       tr.innerHTML = `
         <td>${item.nama}</td>
         <td>
-          <input type="number" class="jumlah-input" step="0.01" min="0"
+          <input type="number" class="jumlah-input" step="1" min="0"
                  value="${item.jumlah}"
                  onchange="updateJumlah(${i}, this.value)" />
         </td>
@@ -591,7 +571,7 @@
   }
 
   function updateJumlah(index, value) {
-    resep[index].jumlah = parseFloat(value) || 0;
+    resep[index].jumlah = Number(value) || 0;
   }
 
   /* ══════════════════════════
@@ -781,6 +761,7 @@
     formData.append('harga', harga);
     formData.append('Kategori', kategori);
     formData.append('resep', JSON.stringify(resep));
+    formData.append('status', menuStatusValue);
     if (photoFile) formData.append('foto', photoFile);
 
     try {
@@ -825,8 +806,30 @@
     toastTimer = setTimeout(() => el.classList.remove('show'), 2400);
   }
 
+  let menuStatusValue = {{ $menu['status'] ? 1 : 0 }};
+
+function toggleStatus() {
+  menuStatusValue = menuStatusValue === 1 ? 0 : 1;
+  updateStatusBtn();
+}
+
+function updateStatusBtn() {
+  const btn = document.getElementById('btnToggleStatus');
+  if (menuStatusValue === 1) {
+    btn.textContent = 'Tersedia';
+    btn.className = 'btn-toggle-status status-tersedia';
+  } else {
+    btn.textContent = 'Tidak Tersedia';
+    btn.className = 'btn-toggle-status status-tidak';
+  }
+}
+
   /* ── Init ── */
   renderResep();
+  updateStatusBtn();
+
+
+
 </script>
 </body>
 </html>

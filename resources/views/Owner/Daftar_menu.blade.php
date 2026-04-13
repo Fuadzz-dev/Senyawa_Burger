@@ -285,6 +285,14 @@
     .page-btn.active { background: var(--orange); border-color: var(--orange); color: #fff; }
     .page-btn svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 2; fill: none; }
 
+    .badge-status {
+  display: inline-block; padding: 5px 14px;
+  border-radius: var(--pill); font-size: 12px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.4px;
+}
+.badge-tersedia { background: var(--green); color: #ffffffff; }
+.badge-tidak    { background: var(--red) ; color: #fff; }
+
     /* ══ MODAL ══ */
     .modal-overlay {
       display: none; position: fixed; inset: 0;
@@ -460,6 +468,7 @@
           <th>Kategori</th>
           <th>Bahan yang Diperlukan</th>
           <th>Harga</th>
+          <th>Ketersediaan</th>
           <th>Aksi</th>
         </tr>
       </thead>
@@ -559,7 +568,7 @@
     const slice = filtered.slice(start, start + PER_PAGE);
 
     if (!slice.length) {
-      tbody.innerHTML = `<tr><td colspan="6">
+      tbody.innerHTML = `<tr><td colspan="7">
         <div class="empty-state"><div class="empty-icon">🍔</div><p>Tidak ada menu ditemukan</p></div>
       </td></tr>`;
     } else {
@@ -576,6 +585,11 @@
           <td><span style="background:var(--cream); color:var(--orange-bg); padding:4px 8px; border-radius:6px; font-size:12px; font-weight:700; text-transform:uppercase;">${item.kategori || '-'}</span></td>
           <td><div class="bahan-list">${bahanHtml}</div></td>
           <td class="td-price">${fmt(item.harga)}</td>
+          <td>
+            <span class="badge-status ${item.status ? 'badge-tersedia' : 'badge-tidak'}">
+              ${item.status ? 'Tersedia' : 'Tidak Tersedia'}
+            </span>
+          </td>
           <td>
             <div class="action-btns">
               <button class="btn-action btn-update" onclick="window.location.href='/owner/menu/${item.id}/edit'">UPDATE</button>

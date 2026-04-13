@@ -297,6 +297,38 @@
     .page-btn.active { background: var(--orange); border-color: var(--orange); color: #fff; }
     .page-btn svg { width:14px; height:14px; stroke:currentColor; stroke-width:2; fill:none; }
 
+    /* ══ SATUAN DROPDOWN ══ */
+.satuan-wrapper { position: relative; }
+.satuan-wrapper .form-input { padding-right: 36px; cursor: pointer; }
+.satuan-arrow {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  width: 16px; height: 16px;
+  stroke: var(--text-muted); stroke-width: 2; fill: none;
+  pointer-events: none; transition: transform 0.2s;
+}
+.satuan-dropdown {
+  display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+  background: #fff; border: 1.5px solid var(--border);
+  border-radius: 8px; max-height: 220px; overflow-y: auto;
+  z-index: 300; box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+}
+.satuan-dropdown.open { display: block; animation: ddFade 0.15s ease; }
+@keyframes ddFade { from{opacity:0;transform:translateY(-6px);} to{opacity:1;transform:translateY(0);} }
+.satuan-dropdown-item {
+  padding: 11px 14px; font-size: 13.5px; font-weight: 600;
+  color: var(--text-dark); cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: background 0.12s;
+}
+.satuan-dropdown-item:hover { background: var(--cream); }
+.satuan-dropdown-item.active { color: var(--orange); }
+.satuan-dropdown-item .check-icon { color: var(--orange); font-size: 14px; }
+.satuan-divider { height: 1px; background: var(--border); margin: 4px 0; }
+.satuan-new-hint {
+  padding: 10px 14px; font-size: 12px; color: var(--text-muted);
+  font-style: italic; font-weight: 500;
+}
+
     /* ══ MODAL ══ */
     .modal-overlay {
       display: none; position: fixed; inset: 0;
@@ -466,12 +498,21 @@
     </div>
     <div class="form-group">
       <label class="form-label">Satuan</label>
-      <input class="form-input" id="inputSatuan" list="satuanList" placeholder="Pilih atau ketik satuan..." />
-      <datalist id="satuanList">
-        @foreach($satuans as $s)
-            <option value="{{ $s }}"></option>
-        @endforeach
-      </datalist>
+      <div class="satuan-wrapper" id="satuanWrapper">
+        <input
+          class="form-input"
+          id="inputSatuan"
+          type="text"
+          placeholder="Pilih atau ketik satuan..."
+          autocomplete="off"
+          oninput="onSatuanInput()"
+          onfocus="openSatuanDropdown()"
+        />
+        <svg class="satuan-arrow" id="satuanArrow" viewBox="0 0 24 24">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+        <div class="satuan-dropdown" id="satuanDropdown"></div>
+      </div>
     </div>
     <div class="modal-actions">
       <button class="modal-btn cancel" onclick="closeModal('formModal')">Batal</button>
@@ -690,7 +731,13 @@
   function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
   document.querySelectorAll('.modal-overlay').forEach(el => {
-    el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+    document.addEventListener('click', (e) => {
+      const satuanWrapper = document.getElementById('satuanWrapper');
+      if (satuanWrapper && !satuanWrapper.contains(e.target)) {
+        document.getElementById('satuanDropdown').classList.remove('open');
+        document.getElementById('satuanArrow').style.transform = 'translateY(-50%)';
+      }
+    });
   });
 
   /* ── Toast ── */
@@ -702,6 +749,57 @@
     el.classList.add('show');
     toastTimer = setTimeout(() => el.classList.remove('show'), 2400);
   }
+
+  const allSatuan = @json($satuans->values());
+
+function buildSatuanDropdown(query) {
+  const dropdown = document.getElementById('satuanDropdown');
+  const current  = document.getElementById('inputSatuan').value.trim();
+  const q        = query.toLowerCase();
+
+  const matched = allSatuan.filter(s => s.toLowerCase().includes(q));
+  const isNew   = current && !allSatuan.some(s => s.toLowerCase() === current.toLowerCase());
+
+  let html = '';
+
+  if (matched.length > 0) {
+    html += matched.map(s => {
+      const isActive = s.toLowerCase() === current.toLowerCase();
+      return `<div class="satuan-dropdown-item ${isActive ? 'active' : ''}"
+                   onclick="selectSatuan('${s.replace(/'/g,"\\'")}')">
+        <span>${s}</span>
+        ${isActive ? '' : ''}
+      </div>`;
+    }).join('');
+  }
+
+  if (isNew) {
+    if (matched.length > 0) html += '<div class="satuan-divider"></div>';
+    html += `<div class="satuan-dropdown-item"
+                  onclick="selectSatuan('${current.replace(/'/g,"\\'")}')">
+      <span>Tambah Satuan Baru "<strong>${current}</strong>"</span>
+    </div>`;
+  }
+
+  dropdown.innerHTML = html;
+}
+
+function openSatuanDropdown() {
+  buildSatuanDropdown(document.getElementById('inputSatuan').value);
+  document.getElementById('satuanDropdown').classList.add('open');
+  document.getElementById('satuanArrow').style.transform = 'translateY(-50%) rotate(180deg)';
+}
+
+function onSatuanInput() {
+  buildSatuanDropdown(document.getElementById('inputSatuan').value);
+  document.getElementById('satuanDropdown').classList.add('open');
+}
+
+function selectSatuan(value) {
+  document.getElementById('inputSatuan').value = value;
+  document.getElementById('satuanDropdown').classList.remove('open');
+  document.getElementById('satuanArrow').style.transform = 'translateY(-50%)';
+}
 
   /* ── Init ── */
   filtered = [...items];
