@@ -103,7 +103,6 @@
       box-shadow: 0 4px 15px rgba(0,0,0,0.02);
       transition: transform 0.2s, box-shadow 0.2s;
     }
-    .summary-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.06); }
 
     .card-icon {
       width: 52px; height: 52px; border-radius: 14px;
@@ -138,61 +137,72 @@
     }
 
     /* ══ TABLE CARD ══ */
-    .table-card {
-      background: var(--surface);
-      border: 2px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-    }
-    .table-card-header {
-      padding: 15px 20px;
-      border-bottom: 1.5px solid var(--border);
-      display: flex; align-items: center; justify-content: space-between;
-      background: var(--surface);
-    }
-    .table-card-title {
-      font-size: 15px; font-weight: 800;
-      color: var(--text-dark); text-transform: uppercase; letter-spacing: 0.5px;
-    }
-    .table-count { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+.table-card {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
 
-    .laporan-table { width: 100%; border-collapse: collapse; }
-    .laporan-table thead th {
-      padding: 12px 16px;
-      font-size: 11px; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.8px;
-      color: var(--text-muted);
-      border-bottom: 1.5px solid var(--border);
-      text-align: left; background: #FAFAF8;
-    }
-    .laporan-table thead th:not(:first-child):not(:nth-child(2)) { text-align: right; }
-    .laporan-table tbody tr { transition: background 0.15s; }
-    .laporan-table tbody tr:hover { background: #F5F2EE; }
-    .laporan-table tbody td {
-      padding: 13px 16px;
-      font-size: 13.5px; color: var(--text-dark);
-      border-bottom: 1px solid var(--border);
-      vertical-align: middle;
-    }
-    .laporan-table tbody tr:last-child td { border-bottom: none; }
-    .laporan-table tbody td:not(:first-child):not(:nth-child(2)) { text-align: right; }
+.table-card-header {
+  padding: 15px 20px;
+  border-bottom: 1.5px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--surface);
+}
 
-    .badge-tipe {
-      display: inline-block; padding: 3px 10px;
-      border-radius: var(--pill); font-size: 11px; font-weight: 800;
-      text-transform: uppercase; letter-spacing: 0.4px;
-    }
-    .badge-harian   { background: rgba(59,130,246,0.12); color: var(--blue); }
-    .badge-mingguan { background: rgba(139,92,246,0.12); color: var(--purple); }
-    .badge-bulanan  { background: rgba(232,80,10,0.12); color: var(--orange); }
-    .badge-tahunan  { background: rgba(76,175,80,0.12); color: var(--green); }
+.table-card-title {
+  font-size: 15px; font-weight: 800;
+  color: var(--text-dark); text-transform: uppercase; letter-spacing: 0.5px;
+}
 
-    .td-pendapatan { font-weight: 700; color: var(--orange); }
-    .td-num        { font-weight: 600; color: var(--text-dark); }
+.table-count { font-size: 13px; color: var(--text-muted); font-weight: 500; }
 
-    .empty-state { text-align: center; padding: 48px 20px; color: var(--text-muted); }
-    .empty-icon  { font-size: 40px; margin-bottom: 10px; }
+.laporan-table { 
+  width: 100%; 
+  border-collapse: collapse; 
+}
 
+/* Bagian Head Tabel */
+.laporan-table thead th {
+  padding: 12px 16px;
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.8px;
+  color: var(--text-muted);
+  border-bottom: 1.5px solid var(--border);
+  text-align: center; /* SEMUA HEAD DIBUAT TENGAH */
+  background: #FAFAF8;
+}
+
+.laporan-table tbody tr { transition: background 0.15s;  }
+.laporan-table tbody tr:hover { background: #F5F2EE; }
+
+.laporan-table tbody td {
+  padding: 13px 16px;
+  font-size: 13.5px; color: var(--text-dark);
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+  text-align: center;
+}
+
+.laporan-table tbody tr:last-child td { border-bottom: none; }
+
+.badge-tipe {
+  display: inline-block; padding: 3px 10px;
+  border-radius: var(--pill); font-size: 11px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.4px;
+}
+
+.badge-harian   { background: rgba(59,130,246,0.12); color: var(--blue); }
+.badge-mingguan { background: rgba(139,92,246,0.12); color: var(--purple); }
+.badge-bulanan  { background: rgba(232,80,10,0.12); color: var(--orange); }
+.badge-tahunan  { background: rgba(76,175,80,0.12); color: var(--green); }
+
+.td-pendapatan { font-weight: 700; color: var(--orange); }
+.td-num        { font-weight: 600; color: var(--text-dark); }
+
+.empty-state { text-align: center; padding: 48px 20px; color: var(--text-muted); }
+.empty-icon  { font-size: 40px; margin-bottom: 10px; }
     /* Pagination */
     .pagination {
       display: flex; align-items: center; justify-content: flex-end;
@@ -268,7 +278,6 @@
       font-family: "Nunito", sans-serif; font-size: 13.5px; font-weight: 700;
       cursor: pointer; transition: background 0.2s, transform 0.15s;
     }
-    .btn-filter:hover { background: var(--orange-bg); transform: translateY(-1px); }
 
     .btn-reset {
       background: #eee; color: var(--text-dark); border: none;
@@ -280,7 +289,6 @@
     .btn-reset:hover { background: #e0e0e0; }
 
     .btn-export {
-      margin-left: auto;
       background: var(--green); color: #fff; border: none;
       border-radius: 10px; padding: 9px 20px;
       font-family: "Nunito", sans-serif; font-size: 13.5px; font-weight: 800;
@@ -420,9 +428,14 @@
       <button type="submit" class="btn-filter">Terapkan</button>
       <a href="/owner/laporan" class="btn-reset">Reset</a>
 
-      <button type="button" class="btn-export" onclick="exportCSV()">
+      <button type="button" class="btn-export" onclick="exportCSV()" style="margin-left: auto;">
         <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Unduh CSV
+      </button>
+
+      <button type="button" class="btn-export" onclick="exportPDF()" style="background: var(--red); box-shadow: 0 4px 12px rgba(232, 85, 85, 0.3);">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Unduh PDF
       </button>
     </div>
   </form>
@@ -678,6 +691,69 @@ function exportCSV() {
   showToast('File CSV berhasil diunduh!');
 }
 
+function exportPDF() {
+  if (!allLaporan || !allLaporan.length) { 
+      showToast('Tidak ada data untuk diekspor'); 
+      return; 
+  }
+
+  // Inisialisasi jsPDF
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  // Menambahkan Judul ke PDF
+  doc.setFontSize(16);
+  doc.setTextColor(232, 80, 10); // Warna merah/oranye
+  doc.text('Laporan Keuangan - Senyawa Burger', 14, 20);
+  
+  doc.setFontSize(10);
+  doc.setTextColor(100, 100, 100);
+  doc.text('Tanggal Unduh: ' + new Date().toISOString().slice(0,10), 14, 28);
+
+  // Menyiapkan Header Tabel
+  const head = [['Periode', 'Rentang', 'Total Pendapatan', 'Transaksi', 'Pesanan', 'Item Terjual']];
+
+  // Menyiapkan Data Baris (Rows)
+  const rows = allLaporan.map(r => {
+      // Format rentang tanggal
+      let rentang = r.dari && r.sampai ? `${r.dari} s/d ${r.sampai}` : '-';
+      
+      // Format mata uang Rupiah
+      let pendapatan = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(r.total_pendapatan || 0);
+
+      return [
+          (r.tipe || '-').toUpperCase(),
+          rentang,
+          pendapatan,
+          r.total_transaksi || '0',
+          r.jumlah_pesanan || '0',
+          r.total_terjual || '0'
+      ];
+  });
+
+  // Membuat tabel di dalam PDF menggunakan AutoTable
+  doc.autoTable({
+      startY: 35,
+      head: head,
+      body: rows,
+      theme: 'grid',
+      headStyles: { fillColor: [232, 80, 10] }, // Warna header tabel
+      styles: { fontSize: 9 },
+      columnStyles: {
+          2: { halign: 'right' }, // Rata kanan untuk kolom pendapatan
+          3: { halign: 'center' },
+          4: { halign: 'center' },
+          5: { halign: 'center' }
+      }
+  });
+
+  // Mengunduh File PDF
+  const filename = 'laporan-keuangan-' + new Date().toISOString().slice(0,10) + '.pdf';
+  doc.save(filename);
+  
+  showToast('File PDF berhasil diunduh!');
+}
+
 /* ══════════════
    TOAST
 ══════════════ */
@@ -693,5 +769,7 @@ function showToast(msg) {
 /* ── Init ── */
 renderPagination();
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 </body>
 </html>

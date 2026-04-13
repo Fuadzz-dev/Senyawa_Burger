@@ -23,20 +23,6 @@
             <h1>Pesanan</h1>
         </div>
 
-        <!-- Order Type -->
-        <div class="section" style="padding-top: 18px">
-            <div class="order-type-badge" onclick="toggleOrderType()">
-                <span class="order-type-left">Tipe Pemesanan</span>
-                <div class="order-type-right">
-                    <span id="orderTypeText">Makan di tempat</span>
-                    <svg viewBox="0 0 24 24" fill="none">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                        <polyline points="22 4 12 14.01 9 11.01" />
-                    </svg>
-                </div>
-            </div>
-        </div>
-
         <!-- Order Items Header -->
         <div class="order-header">
             <span class="order-header-title" id="orderCountTitle"
@@ -63,54 +49,6 @@
         <div class="section" style="padding-top: 0; padding-bottom: 10px; padding-left: 16px; padding-right: 16px;">
             <p style="font-size: 0.85rem; font-weight: 700; color: var(--dark); margin-bottom: 8px;">Catatan Lainnya</p>
             <textarea id="checkoutCatatan" placeholder="Cth: Jangan pakai kantong plastik, dsb..." style="width: 100%; height: 75px; border: 1.5px solid #eee; border-radius: 12px; padding: 10px 14px; font-family: 'Nunito', sans-serif; font-size: 0.85rem; resize: none; outline: none; transition: border-color 0.2s; background: var(--card-bg);" onfocus="this.style.borderColor='var(--orange)'" onblur="this.style.borderColor='#eee'"></textarea>
-        </div>
-
-        <!-- Payment Summary -->
-        <div class="payment-box">
-            <div class="payment-title">Rincian Pembayaran</div>
-            <div class="payment-rows">
-                <div class="payment-row">
-                    <span class="pay-label">Subtotal</span>
-                    <span class="pay-value" id="subtotalVal">Rp</span>
-                </div>
-                <div class="payment-row">
-                    <span class="pay-label">Pembulatan</span>
-                    <span class="pay-value negative" id="roundingVal"
-                        >Rp25</span
-                    >
-                </div>
-                <div class="payment-row">
-                    <span class="pay-label">
-                        Biaya Lainnya
-                        <span
-                            class="dropdown-arrow"
-                            id="feeToggle"
-                            onclick="toggleFee(event)"
-                            style="cursor: pointer"
-                            >▼</span
-                        >
-                    </span>
-                    <span class="pay-value" id="otherFeeVal">Rp1</span>
-                </div>
-                <div class="payment-row" id="feeDetail" style="display: none">
-                    <span
-                        class="pay-label"
-                        style="color: var(--gray); font-size: 0.75rem"
-                        >Biaya layanan</span
-                    >
-                    <span
-                        class="pay-value"
-                        style="color: var(--gray); font-size: 0.75rem"
-                        >Rp2.525</span
-                    >
-                </div>
-                <div class="payment-row">
-                    <span class="pay-label" style="font-weight: 800"
-                        >Total</span
-                    >
-                    <span class="pay-value bold" id="totalVal">Rp53.000</span>
-                </div>
-            </div>
         </div>
 
         <!-- Bottom Bar -->
@@ -417,57 +355,6 @@
         margin: 18px 22px;
     }
 
-    /* ── Payment Summary ── */
-    .payment-title {
-        text-align: center;
-        font-family: "Bebas Neue", cursive;
-        font-size: 1.1rem;
-        letter-spacing: 2px;
-        color: var(--dark);
-        padding: 13px;
-        background: var(--cream);
-    }
-
-    .payment-rows {
-        padding: 4px 16px 8px;
-    }
-
-    .payment-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 9px 0;
-        border-bottom: 1px dashed #eee;
-    }
-    .payment-row:last-child {
-        border-bottom: none;
-        font-weight: 800;
-    }
-
-    .pay-label {
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: var(--dark);
-        display: flex;
-        align-items: center;
-        gap: 4px;
-    }
-    .pay-value {
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: var(--dark);
-    }
-    .pay-value.negative {
-        color: #2c9b4a;
-    }
-    .pay-value.bold {
-        font-weight: 800;
-    }
-
-    .dropdown-arrow {
-        font-size: 10px;
-    }
-
     /* ── Bottom Bar ── */
     .bottom-bar {
         position: fixed;
@@ -588,8 +475,6 @@
         note: o.notes || o.note || "",
     }));
 
-    const OTHER_FEE = 1;
-
     // ── Render ──
     function fmt(n) {
         return (
@@ -653,20 +538,14 @@
     }
 
     function updateTotals() {
-        const subtotal = orders.reduce((s, o) => s + o.price, 0);
-        const rounding = subtotal % 1000 === 0 ? 0 : -(subtotal % 25);
-        const total = subtotal + rounding + OTHER_FEE;
+        const total = orders.reduce((s, o) => s + o.price, 0);
 
-        document.getElementById("subtotalVal").textContent = fmt(subtotal);
-        document.getElementById("roundingVal").textContent =
-            rounding < 0 ? "-Rp" + Math.abs(rounding) : fmt(rounding);
-        document.getElementById("otherFeeVal").textContent = fmt(OTHER_FEE);
-        document.getElementById("totalVal").textContent = fmt(total);
-        document.getElementById("bottomTotal").textContent = fmt(total);
+        const elBottomTotal = document.getElementById("bottomTotal");
+        if (elBottomTotal) elBottomTotal.textContent = fmt(total);
 
+        const elOrderCount = document.getElementById("orderCountTitle");
         const totalQty = orders.reduce((s, o) => s + o.qty, 0);
-        document.getElementById("orderCountTitle").textContent =
-            `Item yang dipesan (${totalQty})`;
+        if (elOrderCount) elOrderCount.textContent = `Item yang dipesan (${totalQty})`;
     }
 
     // ── Actions ──

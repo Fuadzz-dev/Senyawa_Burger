@@ -25,18 +25,6 @@
         </div>
 
         <!-- Order Type -->
-        <div class="section" style="padding-top: 18px">
-            <div class="order-type-badge" onclick="toggleOrderType()">
-                <span class="order-type-left">Tipe Pemesanan</span>
-                <div class="order-type-right">
-                    <span id="orderTypeText">Makan di tempat</span>
-                    <svg viewBox="0 0 24 24" fill="none">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                        <polyline points="22 4 12 14.01 9 11.01" />
-                    </svg>
-                </div>
-            </div>
-        </div>
 
         <!-- Informasi Pemesanan -->
         <div class="section" style="padding-top: 20px; padding-bottom: 20px">
@@ -238,43 +226,6 @@
     /* ── Sections ── */
     .section {
         padding: 18px 16px 0;
-    }
-
-    /* Order Type */
-    .order-type-badge {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background: rgba(232, 80, 10, 0.08);
-        border: 1.8px solid var(--orange);
-        border-radius: 50px;
-        padding: 12px 18px;
-        cursor: pointer;
-        transition: background 0.2s;
-    }
-    .order-type-badge:hover {
-        background: rgba(232, 80, 10, 0.14);
-    }
-
-    .order-type-left {
-        font-size: 0.82rem;
-        color: var(--gray);
-        font-weight: 600;
-    }
-    .order-type-right {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 0.85rem;
-        font-weight: 800;
-        color: var(--dark);
-    }
-    .order-type-right svg {
-        width: 20px;
-        height: 20px;
-        stroke: var(--orange);
-        stroke-width: 2.2;
-        fill: none;
     }
 
     /* Section Title */
@@ -647,6 +598,13 @@
 <script>
     let paymentTimeout; // Variabel timeout simulasi qris
 
+    document.addEventListener("DOMContentLoaded", () => {
+        const totalAmountText = localStorage.getItem("checkout_total") || "Rp0";
+        const totalEl = document.querySelector(".total-amount");
+        if (totalEl) totalEl.textContent = totalAmountText;
+    });
+
+
     /* ── Order Type ── */
     function openOrderTypeModal() {
         document.getElementById("orderTypeModal").classList.add("open");
@@ -698,7 +656,8 @@
         const totalText = document.querySelector(".total-amount").textContent;
         const amount = totalText.replace(/[^0-9]/g, '');
         const email = document.getElementById("inputEmail").value.trim();
-        const orderType = document.getElementById("orderTypeText").textContent.trim();
+        const elOrderType = document.getElementById("orderTypeText");
+        const orderType = elOrderType ? elOrderType.textContent.trim() : "Makan di tempat";
         const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
         const catatan = localStorage.getItem("checkout_catatan") || "";
 
