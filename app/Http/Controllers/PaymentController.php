@@ -8,6 +8,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
 use App\Models\Pesanan;
 use App\Models\DetailPesanan;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\StrukMail;
 
 class PaymentController extends Controller
 {
@@ -24,6 +26,19 @@ class PaymentController extends Controller
 
     public function processCheckout(Request $request)
     {
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'phone' => 'required|regex:/^(\\+62|08)[0-9]{8,13}$/',
+            'email' => 'required|email:rfc,dns',
+        ], [
+            'nama.required' => 'Nama lengkap wajib diisi.',
+            'nama.string' => 'Nama harus berupa teks.',
+            'phone.required' => 'Nomor telepon wajib diisi.',
+            'phone.regex' => 'Nomor telepon harus format Indonesia (08xxxxxxxxx atau +62xxxxxxxxx, 10-15 digit).',
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+        ]);
+
         $method = $request->input('paymentMethod');
         $cart = $request->input('cart', []);
         $nama = $request->input('nama');
@@ -38,7 +53,7 @@ class PaymentController extends Controller
             $tipeOrderDb = 'take_away';
         }
 
-        if (empty($cart) || !$amount || !$nama || !$phone) {
+        if (empty($cart) || !$amount) {
             return response()->json(['success' => false, 'message' => 'Data pesanan tidak lengkap'], 400);
         }
 
@@ -59,6 +74,8 @@ class PaymentController extends Controller
             $pesanan->catatan = $catatan;
             $pesanan->status_pembayaran = 'Belum Lunas';
             $pesanan->save();
+
+            Mail::to($pesanan->email)->send(new StrukMail($pesanan));
 
             foreach ($cart as $item) {
                 $detail = new DetailPesanan();
@@ -228,11 +245,13 @@ class PaymentController extends Controller
                 if ($resultCode == "00") {
                     // Pembayaran Berhasil
                     $pesanan->status_pembayaran = 'Lunas';
+                    $pesanan->save();
+                    Mail::to($pesanan->email)->send(new StrukMail($pesanan));
                 } else if ($resultCode == "01") {
                     // Pembayaran Gagal / Expired
                     $pesanan->status_pembayaran = 'Gagal';
+                    $pesanan->save();
                 }
-                $pesanan->save();
             }
             
             // Duitku membutuhkan response HTTP 200 OK
@@ -277,6 +296,8 @@ class PaymentController extends Controller
         $pesanan->status_pembayaran = 'Lunas';
         $pesanan->payment_reference = $reference;
         $pesanan->save();
+ 
+        Mail::to($pesanan->email)->send(new StrukMail($pesanan));
  
         foreach ($orderData['cart'] as $item) {
             $detail = new DetailPesanan();

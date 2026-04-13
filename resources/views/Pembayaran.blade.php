@@ -308,6 +308,15 @@
         color: #bbb;
     }
 
+    /* Validation styles */
+    .input-wrap.invalid {
+        border-color: #e74c3c !important;
+        box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.2) !important;
+    }
+    .input-wrap.invalid svg {
+        stroke: #e74c3c !important;
+    }
+
     /* ── Payment Method ── */
     .method-grid {
         display: grid;
@@ -642,8 +651,13 @@
     
     /* ── Checkout ── */
     async function checkout() {
+        // Clear previous invalid states
+        document.querySelectorAll('.input-wrap').forEach(wrap => wrap.classList.remove('invalid'));
+        
         const nama = document.getElementById("inputNama").value.trim();
         const phone = document.getElementById("inputPhone").value.trim();
+        const email = document.getElementById("inputEmail").value.trim();
+
         if (!nama) {
             showToast("Masukkan nama lengkap");
             return;
@@ -653,9 +667,23 @@
             return;
         }
 
+        // Regex validation
+        const phoneRegex = /^(\+62|08)[0-9]{8,13}$/i;
+        if (!phoneRegex.test(phone)) {
+            showToast("Nomor telepon harus format Indonesia (08xxxxxxxxx atau +62xxxxxxxxx)");
+            document.getElementById("inputPhone").parentElement.classList.add('invalid');
+            return;
+        }
+
+        const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+        if (!emailRegex.test(email)) {
+            showToast("Format email tidak valid");
+            document.getElementById("inputEmail").parentElement.classList.add('invalid');
+            return;
+        }
+
         const totalText = document.querySelector(".total-amount").textContent;
-        const amount = totalText.replace(/[^0-9]/g, '');
-        const email = document.getElementById("inputEmail").value.trim();
+        const amount = totalText.replace(/[^0-9]/g, ''); // email already validated above
         const elOrderType = document.getElementById("orderTypeText");
         const orderType = elOrderType ? elOrderType.textContent.trim() : "Makan di tempat";
         const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
@@ -863,6 +891,16 @@
         el.classList.add("show");
         toastTimer = setTimeout(() => el.classList.remove("show"), 2200);
     }
+
+    /* ── Input validation listeners ── */
+    ['inputPhone', 'inputEmail'].forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+            input.addEventListener('input', () => {
+                input.parentElement.classList.remove('invalid');
+            });
+        }
+    });
 
     /* ── Init Total ── */
     document.addEventListener("DOMContentLoaded", function() {
