@@ -14,7 +14,9 @@ return new class extends Migration
         Schema::create('user', function (Blueprint $table) {
             $table->integer('id_user', true);
             $table->string('nama', 100);
-            $table->enum('role', ['admin', 'kasir', 'manajer']);
+            $table->string('username', 100);
+            $table->string('password');
+            $table->enum('role', ['owner', 'kasir']);
         });
     }
 

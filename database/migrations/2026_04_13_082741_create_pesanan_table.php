@@ -19,7 +19,9 @@ return new class extends Migration
             $table->string('email', 100)->nullable();
             $table->string('nama', 100);
             $table->enum('tipe_order', ['dine_in', 'take_away', 'delivery'])->default('dine_in');
+            $table->text('catatan')->nullable();
             $table->enum('status_pembayaran', ['Lunas', 'Belum Lunas']);
+            $table->string('status_pesanan')->default('Proses');
             $table->string('payment_reference')->nullable();
             $table->timestamp('created_at')->useCurrent()->index('idx_pesanan_created');
         });

@@ -91,8 +91,8 @@
                     id="methodOnline"
                     onclick="selectMethod('online')"
                 >
-                    <div class="method-icon">💳</div>
-                    <span class="method-label">Pembayaran Online</span>
+                    <div class="method-icon">📱</div>
+                    <span class="method-label">Bayar via QRIS</span>
                 </div>
                 <div
                     class="method-card"
@@ -106,30 +106,6 @@
         </div>
 
         <div class="divider-line"></div>
-
-        <!-- Selesaikan Pembayaran -->
-        <div
-            class="section"
-            style="padding-top: 16px; padding-bottom: 4px"
-            id="onlineSection"
-        >
-            <p
-                style="
-                    font-size: 0.85rem;
-                    color: var(--gray);
-                    margin-bottom: 12px;
-                    font-weight: 600;
-                "
-            >
-                Selesaikan Pembayaran
-            </p>
-
-            <div class="pay-option selected" onclick="selectPay(this, 'QRIS')">
-                <div class="pay-option-icon">📱</div>
-                <span class="pay-option-name">QRIS</span>
-                <div class="radio-circle"><div class="radio-dot"></div></div>
-            </div>
-        </div>
 
         <!-- Bottom Bar -->
         <div class="bottom-bar">
@@ -435,73 +411,6 @@
         line-height: 1.3;
     }
 
-    /* ── Payment Options ── */
-    .pay-option {
-        display: flex;
-        align-items: center;
-        border: 2px solid #eee;
-        border-radius: var(--radius);
-        padding: 14px 16px;
-        margin-bottom: 10px;
-        cursor: pointer;
-        transition:
-            border-color 0.2s,
-            background 0.2s;
-    }
-    .pay-option:hover {
-        background: var(--cream);
-    }
-    .pay-option.selected {
-        border-color: var(--orange);
-        background: rgba(232, 80, 10, 0.08);
-    }
-
-    .pay-option-icon {
-        width: 38px;
-        height: 38px;
-        background: var(--cream);
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 20px;
-        flex-shrink: 0;
-        margin-right: 12px;
-    }
-
-    .pay-option-name {
-        flex: 1;
-        font-size: 0.88rem;
-        font-weight: 700;
-        color: var(--dark);
-    }
-
-    /* Radio */
-    .radio-circle {
-        width: 22px;
-        height: 22px;
-        border-radius: 50%;
-        border: 2px solid #eee;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: border-color 0.2s;
-        flex-shrink: 0;
-    }
-    .pay-option.selected .radio-circle {
-        border-color: var(--orange);
-    }
-    .radio-dot {
-        width: 11px;
-        height: 11px;
-        border-radius: 50%;
-        background: var(--orange);
-        display: none;
-    }
-    .pay-option.selected .radio-dot {
-        display: block;
-    }
-
     /* ── Promo Row ── */
     .promo-row {
         display: flex;
@@ -772,16 +681,7 @@
         document.getElementById("dividerPromo").style.display =
             method === "online" ? "" : "none";
     }
-
-    /* ── Pay Option ── */
-    function selectPay(el, name) {
-        document
-            .querySelectorAll(".pay-option")
-            .forEach((o) => o.classList.remove("selected"));
-        el.classList.add("selected");
-        showToast(`Metode: ${name}`);
-    }
-
+    
     /* ── Checkout ── */
     async function checkout() {
         const nama = document.getElementById("inputNama").value.trim();

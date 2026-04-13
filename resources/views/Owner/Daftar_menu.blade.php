@@ -438,7 +438,10 @@
   </a>
 
   <div class="sidebar-footer">
-    <button class="btn-logout" onclick="showToast('👋 Berhasil logout')">Logout</button>
+    <form action="{{ route('logout') }}" method="POST">
+      @csrf
+      <button type="submit" class="btn-logout">Logout</button>
+    </form>
   </div>
 </aside>
 
