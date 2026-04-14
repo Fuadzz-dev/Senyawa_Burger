@@ -106,32 +106,7 @@
             </button>
         </div>
 
-        <!-- QRIS Modal -->
-        <div class="modal-overlay" id="qrisModal" onclick="if(event.target === this) closeModal('qrisModal')">
-            <div class="modal" onclick="event.stopPropagation()">
-                <div class="modal-handle"></div>
-                <h2 class="modal-title" style="text-align: center; margin-bottom: 8px;">Scan QRIS</h2>
-                <p id="qrisStatusText" style="text-align: center; font-size: 0.9rem; color: var(--gray); margin-bottom: 20px;">
-                    Silakan scan QR Code di bawah ini untuk menyelesaikan pembayaran.
-                </p>
-                <div id="qrisImageContainer" style="display: flex; justify-content: center; align-items: center; background: #fff; padding: 16px; border-radius: 16px; border: 2px solid #eee; margin-bottom: 16px; min-height: 236px;">
-                    <img id="qrisImage" src="" alt="QRIS Code" onerror="this.onerror=null; this.src='https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=error';" style="width: 200px; height: 200px; display: block; object-fit: contain;" />
-                </div>
-                <div id="qrisSuccessAnim" style="display: none; justify-content: center; align-items: center; background: #fff; padding: 16px; border-radius: 16px; border: 2px solid var(--orange); margin-bottom: 16px; height: 236px;">
-                    <svg viewBox="0 0 24 24" fill="none" style="width: 100px; height: 100px; stroke: var(--orange); stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round;">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                        <polyline points="22 4 12 14.01 9 11.01" />
-                    </svg>
-                </div>
-                <div style="text-align: center; margin-bottom: 24px;">
-                    <span style="font-size: 0.85rem; color: var(--gray);">Total Pembayaran</span>
-                    <div id="qrisAmount" style="font-size: 1.4rem; font-weight: 800; color: var(--dark);">Rp0</div>
-                </div>
-                <button id="btnCancelQris" class="btn-pay" style="width: 100%; background: #eee; color: var(--dark); box-shadow: none;" onclick="closeModal('qrisModal')">
-                    Batalkan
-                </button>
-            </div>
-        </div>
+
 
         <!-- Toast -->
         <div class="toast" id="toast"></div>
@@ -605,7 +580,6 @@
 
 <!--Javascript-->
 <script>
-    let paymentTimeout; // Variabel timeout simulasi qris
 
     document.addEventListener("DOMContentLoaded", () => {
         const totalAmountText = localStorage.getItem("checkout_total") || "Rp0";
@@ -620,9 +594,6 @@
     }
     function closeModal(id) {
         document.getElementById(id).classList.remove("open");
-        if(id === 'qrisModal') {
-            clearTimeout(paymentTimeout); // Batalkan simulasi jika ditutup
-        }
     }
     function setOrderType(label, el) {
         document
@@ -728,24 +699,12 @@
                     setTimeout(() => {
                         window.location.href = `/menunggu-kasir`;
                     }, 2000);
-                } else if (data.qrString) {
-                    // QRIS: cart JANGAN dihapus dulu, tunggu sampai pembayaran sukses
-                    const qrUrl = `https://quickchart.io/qr?size=250&text=${encodeURIComponent(data.qrString)}`;
-
-                    document.getElementById("qrisImage").src = qrUrl;
-                    document.getElementById("qrisAmount").textContent = totalText;
-                    document.getElementById("qrisImageContainer").style.display = "flex";
-                    document.getElementById("qrisSuccessAnim").style.display = "none";
-                    document.getElementById("qrisStatusText").innerHTML = "Menunggu pembayaran via QRIS...<br><small style='color:var(--orange)'>Status akan diperbarui otomatis</small>";
-                    document.getElementById("qrisStatusText").style.color = "var(--gray)";
-                    document.getElementById("qrisStatusText").style.fontWeight = "normal";
-                    document.getElementById("qrisStatusText").style.fontSize = "0.9rem";
-                    document.getElementById("btnCancelQris").style.display = "block";
-
-                    document.getElementById("qrisModal").classList.add("open");
-
-                    // Mulai simulasi konfirmasi pembayaran
-                    pollPaymentStatus(data.reference);
+                } else if (data.method === 'online' || data.qrString) {
+                    // Berpindah ke view MenungguQris
+                    showToast("Mengarahkan ke halaman pembayaran QRIS...");
+                    setTimeout(() => {
+                        window.location.href = `/menunggu-qris`;
+                    }, 1000);
                 }
             } else {
                 showToast(data.message || "Gagal memproses Checkout, silakan coba lagi");
@@ -754,128 +713,6 @@
             console.error(error);
             showToast("Terjadi kesalahan sistem saat memproses checkout.");
         }
-    }
-
-    async function pollPaymentStatus(reference) {
-        clearTimeout(paymentTimeout);
-
-        paymentTimeout = setTimeout(async () => {
-            if (!document.getElementById("qrisModal").classList.contains("open")) {
-                return; // Modal sudah ditutup user, batalkan
-            }
-
-            try {
-                const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
-
-                // Panggil endpoint simulate-success → pesanan baru masuk DB di sini
-                const res = await fetch(`/api/pembayaran/simulate-success/${reference}`, {
-                    method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': csrfToken }
-                });
-                const result = await res.json();
-
-                if (result.success) {
-                    // Pembayaran sukses → baru hapus cart dari localStorage
-                    localStorage.removeItem('cart');
-                    localStorage.removeItem('checkout_total');
-
-                    // Update UI sukses
-                    document.getElementById("qrisImageContainer").style.display = "none";
-                    document.getElementById("qrisSuccessAnim").style.display = "flex";
-                    document.getElementById("btnCancelQris").style.display = "none";
-
-                    document.getElementById("qrisStatusText").textContent = "Pembayaran Berhasil Diverifikasi!";
-                    document.getElementById("qrisStatusText").style.color = "var(--orange)";
-                    document.getElementById("qrisStatusText").style.fontWeight = "bold";
-                    document.getElementById("qrisStatusText").style.fontSize = "1.1rem";
-
-                    showToast("Pembayaran QRIS berhasil diterima!");
-
-                    setTimeout(() => {
-                        window.location.href = "{{ url('/') }}";
-                    }, 2500);
-                } else {
-                    showToast("Gagal mengkonfirmasi pembayaran.");
-                }
-            } catch (error) {
-                console.error("Simulation error", error);
-            }
-        }, 10000); // 10 detik simulasi
-    }
-
-    // //simulasi 
-    // function pollPaymentStatus(reference) {
-    //     clearTimeout(paymentTimeout);
-        
-    //     // Mulai hitung mundur 10 detik (10000 ms)
-    //     paymentTimeout = setTimeout(async () => {
-    //         if (!document.getElementById("qrisModal").classList.contains("open")) {
-    //             return; // Batalkan jika user sudah menutup modal duluan
-    //         }
-            
-    //         try {
-    //             // Panggil endpoint buatan kita untuk mengubah status DB jadi Lunas
-    //             await fetch(`/api/pembayaran/simulate-success/${reference}`);
-                
-    //             // --- UPDATE UI MENJADI SUKSES ---
-    //             document.getElementById("qrisImageContainer").style.display = "none";
-    //             document.getElementById("qrisSuccessAnim").style.display = "flex";
-    //             document.getElementById("btnCancelQris").style.display = "none";
-                
-    //             document.getElementById("qrisStatusText").textContent = "Pembayaran Berhasil Diverifikasi!";
-    //             document.getElementById("qrisStatusText").style.color = "var(--orange)";
-    //             document.getElementById("qrisStatusText").style.fontWeight = "bold";
-    //             document.getElementById("qrisStatusText").style.fontSize = "1.1rem";
-                
-    //             showToast("Pembayaran QRIS berhasil diterima!");
-                
-    //             // Redirect ke halaman utama / nota setelah animasi selesai
-    //             setTimeout(() => {
-    //                 window.location.href = "/";
-    //             }, 2500);
-
-    //         } catch (error) {
-    //             console.error("Simulation error", error);
-    //         }
-    //     }, 10000); // 10000 milidetik = 10 detik
-    // }
-
-    function pollPaymentStatus(reference) {
-        clearTimeout(paymentTimeout);
-        paymentTimeout = setTimeout(async () => {
-            if (!document.getElementById("qrisModal").classList.contains("open")) {
-                return;
-            }
-            
-            try {
-                const response = await fetch(`/api/pembayaran/status/${reference}`);
-                const data = await response.json();
-                
-                if (data.success && data.statusCode === "00") {
-                    localStorage.removeItem('cart');
-                    localStorage.removeItem('checkout_total');
-                    document.getElementById("qrisImageContainer").style.display = "none";
-                    document.getElementById("qrisSuccessAnim").style.display = "flex";
-                    document.getElementById("btnCancelQris").style.display = "none";
-                    
-                    document.getElementById("qrisStatusText").textContent = "Pembayaran Berhasil Diverifikasi!";
-                    document.getElementById("qrisStatusText").style.color = "var(--orange)";
-                    document.getElementById("qrisStatusText").style.fontWeight = "bold";
-                    document.getElementById("qrisStatusText").style.fontSize = "1.1rem";
-                    
-                    showToast("Pembayaran QRIS berhasil diterima!");
-                    
-                    setTimeout(() => {
-                        window.location.href = "{{ url('/') }}";
-                    }, 2500);
-                } else {
-                    pollPaymentStatus(reference);
-                }
-            } catch (error) {
-                console.error("Polling error", error);
-                pollPaymentStatus(reference);
-            }
-        }, 5000);
     }
 
     function goBack() {

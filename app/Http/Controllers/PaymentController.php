@@ -152,8 +152,15 @@ class PaymentController extends Controller
                 $detail->save();
             }
 
+            session([
+                'menunggu_qris_id' => $pesanan->id_pesanan,
+                'menunggu_qris_qr' => $response['qrString'],
+                'menunggu_qris_reference' => $response['reference']
+            ]);
+
             return response()->json([
                 'success' => true,
+                'method' => 'online',
                 'qrString' => $response['qrString'],
                 'reference' => $response['reference']
             ]);
@@ -214,6 +221,24 @@ class PaymentController extends Controller
             return redirect('/');
         }
         return view('MenungguKasir', compact('pesanan'));
+    }
+
+    public function menungguQris()
+    {
+        $id = session('menunggu_qris_id');
+        $qrString = session('menunggu_qris_qr');
+        $reference = session('menunggu_qris_reference');
+
+        if (!$id || !$qrString || !$reference) {
+            return redirect('/');
+        }
+
+        $pesanan = Pesanan::with('detailPesanan.menu')->find($id);
+        if (!$pesanan) {
+            return redirect('/');
+        }
+
+        return view('MenungguQris', compact('pesanan', 'qrString', 'reference'));
     }
 
     public function checkLocalStatus($id)
