@@ -185,4 +185,48 @@ class KasirController extends Controller
         // Stream akan membuka PDF di browser tanpa langsung men-download
         return $pdf->stream('Struk_Pesanan_#' . $pesanan->id_pesanan . '.pdf');
     }
+
+    public function riwayat()
+    {
+        // Ambil data pesanan yang sudah selesai
+        $pesanans = Pesanan::with('detailPesanan.menu')
+            ->where('status_pesanan', '=', 'Selesai')
+            ->orderBy('id_pesanan', 'desc')
+            ->get();
+        
+        $queue = $pesanans->map(function($p) {
+            $menus = $p->detailPesanan->map(function($d) {
+                return $d->menu ? $d->menu->nama_menu : 'Unknown';
+            })->implode(', ');
+
+            return [
+                'id' => $p->id_pesanan,
+                'nama' => $p->nama,
+                'jumlah' => $p->total_pesanan,
+                'total' => $p->total_harga,
+                'status' => 'selesai', // Status dipaksa Selesai untuk UI
+                'menu' => $menus ?: '-',
+                'tanggal' => $p->created_at ?? date('Y-m-d H:i:s')
+            ];
+        })->values()->toArray();
+
+        return view('Kasir.Riwayat', compact('queue'));
+    }
+
+    public function detailRiwayat($id)
+    {
+        $pesanan = Pesanan::with('detailPesanan.menu')->findOrFail($id);
+        
+        $orders = $pesanan->detailPesanan->map(function($d) {
+            return [
+                'name' => $d->menu ? $d->menu->nama_menu : 'Unknown',
+                'qty' => $d->jumlah,
+                'price' => $d->harga_satuan,
+                'note' => $d->kustomisasi ?? ''
+            ];
+        })->values()->toArray();
+
+        // Pastikan nama file view sesuai, yaitu Kasir.Detail_riwayat
+        return view('Kasir.Detail_riwayat', compact('pesanan', 'orders'));
+    }
 }

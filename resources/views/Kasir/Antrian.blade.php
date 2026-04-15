@@ -32,6 +32,13 @@
                 Daftar Antrian
             </a>
 
+            <a class="nav-item" href="/kasir/riwayat">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Pesanan Selesai
+            </a>
+
             <div class="sidebar-footer">
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf

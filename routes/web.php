@@ -43,6 +43,8 @@ Route::middleware(['role:kasir'])->group(function () {
     Route::post('/kasir/detail/{id}/unlunas', [KasirController::class, 'unlunas']);
     Route::get('/kasir/detail/{id}/cetak', [KasirController::class, 'cetak']);
     Route::delete('/kasir/detail/{id}/hapus', [KasirController::class, 'hapus']);
+    Route::get('/kasir/riwayat', [KasirController::class, 'riwayat']);
+    Route::get('/kasir/riwayat/detail/{id}', [KasirController::class, 'detailRiwayat']);
 });
 
 // Owner
