@@ -10,6 +10,7 @@ use App\Models\Pesanan;
 use App\Models\DetailPesanan;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\StrukMail;
+use App\Jobs\HapusPesananBelumLunas;
 
 class PaymentController extends Controller
 {
@@ -164,6 +165,14 @@ class PaymentController extends Controller
                 'qrString' => $response['qrString'],
                 'reference' => $response['reference']
             ]);
+
+            HapusPesananBelumLunas::dispatch($pesanan->id_pesanan)->delay(now()->addSeconds(30));
+            return response()->json([
+                'success' => true,
+                'method' => 'online',
+                'qrString' => $response['qrString'],
+                'reference' => $response['reference']
+            ]);
         }
 
         return response()->json([
@@ -238,7 +247,8 @@ class PaymentController extends Controller
             return redirect('/');
         }
 
-        return view('MenungguQris', compact('pesanan', 'qrString', 'reference'));
+        return view('MenungguQrisSimulasi', compact('pesanan', 'qrString', 'reference'));
+        // return view('MenungguQris', compact('pesanan', 'qrString', 'reference'));
     }
 
     public function checkLocalStatus($id)
