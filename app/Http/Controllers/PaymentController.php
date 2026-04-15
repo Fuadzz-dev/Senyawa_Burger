@@ -95,6 +95,15 @@ class PaymentController extends Controller
                 'method' => 'kasir',
                 'id_pesanan' => $pesanan->id_pesanan
             ]);
+
+            //HapusPesananBelumLunas::dispatch($pesanan->id_pesanan)->delay(now()->addSeconds(60));
+            HapusPesananBelumLunas::dispatch($pesanan->id_pesanan)->delay(now()->addMinutes(20));
+            return response()->json([
+                'success' => true,
+                'method' => 'online',
+                'qrString' => $response['qrString'],
+                'reference' => $response['reference']
+            ]);
         }
 
         if ($method === 'online') {
@@ -159,14 +168,8 @@ class PaymentController extends Controller
                 'menunggu_qris_reference' => $response['reference']
             ]);
 
-            return response()->json([
-                'success' => true,
-                'method' => 'online',
-                'qrString' => $response['qrString'],
-                'reference' => $response['reference']
-            ]);
-
-            HapusPesananBelumLunas::dispatch($pesanan->id_pesanan)->delay(now()->addSeconds(30));
+            //HapusPesananBelumLunas::dispatch($pesanan->id_pesanan)->delay(now()->addSeconds(60));
+            HapusPesananBelumLunas::dispatch($pesanan->id_pesanan)->delay(now()->addMinutes(20));
             return response()->json([
                 'success' => true,
                 'method' => 'online',
@@ -247,8 +250,8 @@ class PaymentController extends Controller
             return redirect('/');
         }
 
-        return view('MenungguQrisSimulasi', compact('pesanan', 'qrString', 'reference'));
-        // return view('MenungguQris', compact('pesanan', 'qrString', 'reference'));
+        // return view('MenungguQrisSimulasi', compact('pesanan', 'qrString', 'reference'));
+        return view('MenungguQris', compact('pesanan', 'qrString', 'reference'));
     }
 
     public function checkLocalStatus($id)

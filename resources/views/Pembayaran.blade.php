@@ -695,11 +695,16 @@
                 if (data.method === 'kasir') {
                     // Kasir: hapus cart sekarang karena pesanan sudah masuk DB
                     localStorage.removeItem('cart');
+                    localStorage.removeItem('checkout_total');
+                    localStorage.removeItem('checkout_catatan');
                     showToast("Pesanan berhasil disimpan! Silakan menuju kasir.");
                     setTimeout(() => {
                         window.location.href = `/menunggu-kasir`;
                     }, 2000);
                 } else if (data.method === 'online' || data.qrString) {
+                    localStorage.removeItem('cart');
+                    localStorage.removeItem('checkout_total');
+                    localStorage.removeItem('checkout_catatan');
                     // Berpindah ke view MenungguQris
                     showToast("Mengarahkan ke halaman pembayaran QRIS...");
                     setTimeout(() => {

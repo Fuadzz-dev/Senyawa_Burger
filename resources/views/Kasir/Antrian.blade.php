@@ -725,7 +725,7 @@
 
     let filtered = [...queue];
     let currentRow = null;
-    const PER_PAGE = 8;
+    const PER_PAGE = 10;
     let page = 1;
 
     /* ── Format ── */

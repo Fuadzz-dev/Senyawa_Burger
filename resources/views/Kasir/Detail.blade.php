@@ -94,9 +94,17 @@
             </div>
 
             <!-- Big Confirm Button -->
-            <button class="btn-selesai" onclick="confirmSelesai()">
-                Konfirmasi Pesanan Selesai
-            </button>
+            <div class="action-buttons">
+                <button class="btn-cetak" onclick="cetakStruk()">
+                    Cetak Struk
+                </button>
+                <button class="btn-selesai" onclick="confirmSelesai()">
+                    Konfirmasi Pesanan Selesai
+                </button>
+                <button class="btn-hapus" onclick="confirmHapus()">
+                    Hapus Pesanan
+                </button>
+            </div>
         </main>
 
         <!-- ═══ CONFIRM MODAL ═══ -->
@@ -486,12 +494,18 @@
                 border: 2px solid var(--green);
             }
 
-            /* ══ BIG GREEN BUTTON ══ */
-            .btn-selesai {
-                display: block;
-                width: 100%;
-                max-width: 600px;
+            /* ══ ACTION BUTTONS ══ */
+            .action-buttons {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 16px;
                 margin: 28px auto 0;
+                width: 100%;
+            }
+
+            .btn-selesai {
+                flex: 3 ; /* Agar ukurannya proporsional */
                 padding: 16px;
                 background: var(--orange);
                 color: #fff;
@@ -502,17 +516,60 @@
                 font-weight: 700;
                 cursor: pointer;
                 box-shadow: 0 6px 30px rgba(232, 80, 10, 0.4);
-                transition:
-                    transform 0.15s,
-                    box-shadow 0.15s,
-                    background 0.2s;
+                transition: transform 0.15s, box-shadow 0.15s, background 0.2s;
             }
             .btn-selesai:hover {
                 background: var(--orange-light);
                 transform: translateY(-2px);
-                box-shadow: 0 8px 28px #00ff1580;
+                box-shadow: 0 8px 28px rgba(255, 123, 0, 0.5);
             }
             .btn-selesai:active {
+                transform: scale(0.98);
+            }
+
+            .btn-cetak {
+                flex: 1;
+                padding: 16px;
+                background: #2b78e4; /* Warna biru untuk cetak */
+                color: #fff;
+                border: none;
+                border-radius: 50px;
+                font-family: "Nunito", sans-serif;
+                font-size: 1rem;
+                font-weight: 700;
+                cursor: pointer;
+                box-shadow: 0 6px 30px rgba(43, 120, 228, 0.4);
+                transition: transform 0.15s, box-shadow 0.15s, background 0.2s;
+            }
+            .btn-cetak:hover {
+                background: #1a5bb8;
+                transform: translateY(-2px);
+                box-shadow: 0 8px 28px rgba(43, 120, 228, 0.5);
+            }
+            .btn-cetak:active {
+                transform: scale(0.98);
+            }
+
+            .btn-hapus {
+                flex: 1;
+                padding: 16px;
+                background: var(--red); /* Warna merah untuk hapus */
+                color: #fff;
+                border: none;
+                border-radius: 50px;
+                font-family: "Nunito", sans-serif;
+                font-size: 1rem;
+                font-weight: 700;
+                cursor: pointer;
+                box-shadow: 0 6px 30px rgba(232, 85, 85, 0.4);
+                transition: transform 0.15s, box-shadow 0.15s, background 0.2s;
+            }
+            .btn-hapus:hover {
+                background: var(--red-dark);
+                transform: translateY(-2px);
+                box-shadow: 0 8px 28px rgba(232, 85, 85, 0.5);
+            }
+            .btn-hapus:active {
                 transform: scale(0.98);
             }
 
@@ -841,6 +898,47 @@
                 toastTimer = setTimeout(
                     () => el.classList.remove("show"),
                     2400,
+                );
+            }
+
+            /* ── Cetak Struk PDF ── */
+            function cetakStruk() {
+                // Membuka tab baru untuk rute cetak struk PDF
+                // Sesuaikan endpoint '/cetak' dengan routing di Laravel (web.php)
+                window.open('/kasir/detail/{{ $pesanan->id_pesanan }}/cetak', '_blank');
+            }
+
+            /* ── Hapus Pesanan ── */
+            function confirmHapus() {
+                openModal(
+                    "", // Menggunakan string kosong karena icon akan diambil dari styling atau tidak di-set
+                    "Hapus Pesanan",
+                    "Apakah Anda yakin ingin menghapus pesanan ini? Tindakan ini tidak dapat dibatalkan.",
+                    async () => {
+                        try {
+                            // Pastikan route ini menggunakan method POST/DELETE di web.php
+                            const response = await fetch('/kasir/detail/{{ $pesanan->id_pesanan }}/hapus', {
+                                method: 'DELETE', // Ganti dengan 'POST' jika route di web.php menggunakan POST
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                }
+                            });
+                        
+                            const data = await response.json();
+                        
+                            if (data.success) {
+                                showToast("" + data.message);
+                                setTimeout(() => {
+                                    window.location.href = '/kasir/antrian'; // Kembali ke antrian setelah hapus
+                                }, 1500);
+                            } else {
+                                showToast("" + data.message);
+                            }
+                        } catch (error) {
+                            showToast("Terjadi kesalahan jaringan");
+                        }
+                    }
                 );
             }
 

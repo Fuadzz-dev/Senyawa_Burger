@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Pesanan;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class KasirController extends Controller
 {
@@ -95,7 +96,6 @@ class KasirController extends Controller
                     ]);
             } else {
                 DB::table('laporan_keuangan')->insert([
-                    // Menggunakan id_user = 1 as default untuk laporan sistem/kasir
                     'id_user' => 1,
                     'tipe_periode' => 'harian',
                     'tanggal_mulai' => $today,
@@ -147,5 +147,42 @@ class KasirController extends Controller
         $pesanan->save();
 
         return response()->json(['success' => true, 'message' => 'Status pelunasan dibatalkan.']);
+    }
+
+    public function hapus($id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $pesanan = Pesanan::findOrFail($id);
+            
+            // Hapus detail pesanan terlebih dahulu (jika database tidak menggunakan onDelete cascade)
+            $pesanan->detailPesanan()->delete(); 
+            
+            // Hapus data pesanan utama
+            $pesanan->delete();
+
+            DB::commit();
+
+            return response()->json(['success' => true, 'message' => 'Pesanan berhasil dihapus.']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan sistem: ' . $e->getMessage()]);
+        }
+    }
+
+    public function cetak($id)
+    {
+        $pesanan = \App\Models\Pesanan::with('detailPesanan.menu')->findOrFail($id);
+
+        // Load view PDF dan passing data pesanan
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('Kasir.Struk', compact('pesanan'));
+        
+        // (Opsional) Mengatur ukuran kertas. 
+        // A4 adalah default. Kode di bawah ini jika Anda ingin ukuran mirip struk kasir thermal (lebar ~80mm).
+        // $pdf->setPaper([0, 0, 226.77, 600], 'portrait'); 
+
+        // Stream akan membuka PDF di browser tanpa langsung men-download
+        return $pdf->stream('Struk_Pesanan_#' . $pesanan->id_pesanan . '.pdf');
     }
 }
