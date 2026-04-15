@@ -327,3 +327,5 @@
     // Mulai polling setiap 10 detik untuk memberi waktu user scan QR
     setInterval(pollPaymentStatus, 10000);
 </script>
+
+{{--PROGRAM SIMULASI--}}
