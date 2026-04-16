@@ -250,7 +250,7 @@ class PaymentController extends Controller
             return redirect('/');
         }
 
-        // return view('MenungguQrisSimulasi', compact('pesanan', 'qrString', 'reference'));
+        //return view('MenungguQrisSimulasi', compact('pesanan', 'qrString', 'reference'));
         return view('MenungguQris', compact('pesanan', 'qrString', 'reference'));
     }
 
