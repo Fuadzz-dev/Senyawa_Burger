@@ -307,38 +307,6 @@ class PaymentController extends Controller
         }
     }
 
-    public function simulateSuccess($reference)
-    {
-        $existing = Pesanan::where('payment_reference', $reference)->first();
-
-        if (!$existing) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Data pesanan tidak ditemukan.'
-            ], 404);
-        }
- 
-        if ($existing->status_pembayaran === 'Lunas') {
-            return response()->json([
-                'success' => true,
-                'message' => 'Pesanan sudah lunas sebelumnya.',
-                'id_pesanan' => $existing->id_pesanan
-            ]);
-        }
- 
-        // Ubah status ke Lunas dan kirim struk
-        $existing->status_pembayaran = 'Lunas';
-        $existing->save();
-  
-        //Mail::to($existing->email)->send(new StrukMail($existing));
-  
-        return response()->json([
-            'success' => true,
-            'message' => 'Pembayaran dikonfirmasi dan status diperbarui.',
-            'id_pesanan' => $existing->id_pesanan
-        ]);
-    }
-
 }
 
 
