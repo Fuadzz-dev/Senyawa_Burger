@@ -299,7 +299,7 @@
         if (isSuccess) return;
 
         // Coba endpoint simulate success yang ada di PaymentController
-        fetch(`/api/duitku/callback/{{ $reference }}`, {
+        fetch(`/api/pesanan/status/{{ $pesanan->id_pesanan }}`, {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json' 

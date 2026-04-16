@@ -31,7 +31,7 @@ Route::get('/api/pembayaran/status/{reference}', [PaymentController::class, 'che
 Route::get('/menunggu-kasir', [PaymentController::class, 'menungguKasir']);
 Route::get('/menunggu-qris', [PaymentController::class, 'menungguQris']);
 Route::get('/api/pesanan/status/{id}', [PaymentController::class, 'checkLocalStatus']);
-Route::post('/api/duitku/callback/{reference}', [PaymentController::class, 'callback']);
+Route::post('/api/duitku/callback/', [PaymentController::class, 'callback']);
 
 // Kasir
 Route::middleware(['role:kasir'])->group(function () {
