@@ -13,6 +13,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->validateCsrfTokens(except: [
             'api/duitku/callback',
+            '/api/duitku/callback', // Tambahkan garis miring di depan
+            'api/duitku/*',
+            'api/pembayaran/simulate-success/*',         // Bebaskan semua route berawalan api/duitku/
         ]);
 
         $middleware->alias([

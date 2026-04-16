@@ -286,7 +286,12 @@ class PaymentController extends Controller
                     // Pembayaran Berhasil
                     $pesanan->status_pembayaran = 'Lunas';
                     $pesanan->save();
-                    Mail::to($pesanan->email)->send(new StrukMail($pesanan));
+                    //Mail::to($pesanan->email)->send(new StrukMail($pesanan));
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Pembayaran dikonfirmasi dan status diperbarui.',
+                        'id_pesanan' => $pesanan->id_pesanan
+                    ]);
                 } else if ($resultCode == "01") {
                     // Pembayaran Gagal / Expired
                     $pesanan->status_pembayaran = 'Gagal';
@@ -325,7 +330,7 @@ class PaymentController extends Controller
         $existing->status_pembayaran = 'Lunas';
         $existing->save();
   
-        Mail::to($existing->email)->send(new StrukMail($existing));
+        //Mail::to($existing->email)->send(new StrukMail($existing));
   
         return response()->json([
             'success' => true,
