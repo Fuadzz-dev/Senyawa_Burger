@@ -290,7 +290,7 @@
 </style>
 
 <!--Javascript-->
-<script>
+{{-- <script>
     let isSuccess = false;
 
     // Simulasi Polling Status QRIS dari Endpoint Simulate Success
@@ -325,7 +325,38 @@
     }
 
     // Mulai polling setiap 10 detik untuk memberi waktu user scan QR
-    setInterval(pollPaymentStatus, 10000);
-</script>
+    setInterval(pollPaymentStatus, 3000);
+</script> --}}
 
-{{--PROGRAM SIMULASI--}}
+<script>
+    let isSuccess = false;
+
+    function checkStatus() {
+        if (isSuccess) return;
+
+        fetch(`/api/pesanan/status/{{ $pesanan->id_pesanan }}`)
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success && data.status_pembayaran === "Lunas") {
+                    isSuccess = true;
+
+                    // Sembunyikan QRIS dan detail pesanan
+                    document.getElementById("waitingSection").style.display = "none";
+                    document.getElementById("detailSection").style.display = "none";
+
+                    // Tampilkan animasi sukses
+                    document.querySelector(".header h1").textContent = "Selesai";
+                    document.getElementById("successAnim").style.display = "flex";
+
+                    // Redirect ke halaman utama setelah 2.5 detik
+                    setTimeout(() => {
+                        window.location.href = "{{ url('/') }}";
+                    }, 2500);
+                }
+            })
+            .catch((error) => console.error("Error checking status:", error));
+    }
+
+    // Mulai polling setiap 3 detik
+    setInterval(checkStatus, 3000);
+</script>
